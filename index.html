@@ -43,6 +43,14 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
 #loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#01030a;z-index:10;transition:opacity 1.2s;font-size:12px;letter-spacing:4px}
 #loader .ring{width:54px;height:54px;border-radius:50%;border:2px solid rgba(47,243,224,.15);border-top-color:var(--teal);animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+#lbl{position:fixed;inset:0;pointer-events:none;z-index:0}
+#lbl svg{position:absolute;inset:0;width:100%;height:100%}
+#lbl svg circle{stroke:none}
+.cl{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;padding:5px 9px 6px;border-radius:9px;background:rgba(8,16,32,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid;border-left-width:3px;font-size:11px;line-height:1.4;max-width:210px;white-space:normal;will-change:transform,opacity;transition:background .2s;box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.cl:hover{background:rgba(20,36,64,.85);z-index:5}
+.cl .c{font-size:10px;opacity:.6}.cl b{font-weight:600;font-size:12px;color:#fff}
+.cl .r{font-size:10px;opacity:.7}.cl .n{white-space:nowrap}.cl .n:hover{text-decoration:underline}
+#ctrl,#story,#info,#legend,#title{z-index:2}
 @media(max-width:1100px){#story{display:none}}
 </style>
 <script type="importmap">
@@ -76,7 +84,7 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
 </div>
 <div id="story" class="glass"></div>
 <div id="info" class="glass"><div class="x" id="infoX">×</div><div id="infoBody"></div></div>
-<div id="label"></div>
+<div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
 <div id="legend" class="glass">
   <span><i style="color:var(--gold);background:var(--gold)"></i>上游 芯片/制造/系统/能源</span>
   <span><i style="color:var(--teal);background:var(--teal)"></i>中游 算力/云/模型</span>
@@ -342,7 +350,7 @@ grp('ctyBtns','c',v=>{fCty=v;applyFilter();if(v==='CN')flyTo('cn');else if(v==='
 const rotBtn=document.getElementById('rotBtn');rotBtn.onclick=()=>{controls.autoRotate=!controls.autoRotate;rotBtn.classList.toggle('on',controls.autoRotate);};
 const arcBtn=document.getElementById('arcBtn');arcBtn.onclick=()=>{showArcs=!showArcs;arcBtn.classList.toggle('on',showArcs);};
 
-const PRESETS={bay:[37.45,-122.05,1.42],ne:[41.2,-75.5,1.9],us:[38.5,-97,2.7],cn:[33,112,2.6],globe:[30,-40,4.2]};
+const PRESETS={bay:[37.3,-121.6,1.62],ne:[41.2,-75.5,1.9],us:[38.5,-97,2.7],cn:[33,112,2.6],globe:[30,-40,4.2]};
 let fly=null;
 function flyTo(k,latlon){const [lat,lon,d]=latlon||PRESETS[k];const from=camera.position.clone();const to=ll2v(lat,lon,d);
  fly={from,to,t:0,dur:2.2};controls.autoRotate=false;rotBtn.classList.remove('on');}
@@ -378,6 +386,60 @@ function select(o){selected=o;const tagC='#'+o.color.getHexString();
  const cd=camera.position.length();flyTo(null,[o.lat-3,o.lon,Math.min(Math.max(cd,1.5),2.2)]);}
 document.getElementById('infoX').onclick=()=>{document.getElementById('info').classList.remove('open');selected=null;};
 
+
+// ================= INFOGRAPHIC CARDS =================
+const lblRoot=document.getElementById('lbl'),svg=document.getElementById('lsvg');const NS='http://www.w3.org/2000/svg';
+const groups=[];{const m=new Map();markers.forEach(o=>{if(!m.has(o.city))m.set(o.city,[]);m.get(o.city).push(o);});
+ m.forEach((ms,city)=>{const n=new THREE.Vector3();ms.forEach(o=>n.add(o.pos));n.normalize();
+  const el=document.createElement('div');el.className='cl';lblRoot.appendChild(el);
+  const line=document.createElementNS(NS,'path');line.setAttribute('fill','none');line.setAttribute('stroke-width','1');svg.appendChild(line);
+  const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','2.6');svg.appendChild(dot);
+  const g={city,ms,n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
+  el.addEventListener('click',e=>{const t=e.target.closest('[data-id]');select(t?byId[t.dataset.id]:g.vis[0]);});
+  groups.push(g);});}
+const hex=c=>'#'+c.getHexString();
+function buildCards(){groups.forEach(g=>{g.vis=g.ms.filter(visible);if(!g.vis.length)return;
+ const cnt={};g.vis.forEach(o=>cnt[o.layer]=(cnt[o.layer]||0)+1);const dom=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+ const col=g.vis[0].cty==='CN'?hex(COL.CN):hex(COL[dom]);g.col=col;
+ g.el.style.borderColor=col+'88';g.el.style.borderLeftColor=col;g.line.setAttribute('stroke',col);g.dot.setAttribute('fill',col);
+ if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<b>${o.cn}</b> <span class="c">${o.city}</span><div class="r">${o.role}</div>`;}
+ else g.el.innerHTML=`<b>${g.city.split(' ').pop()}</b> <span class="c">${g.vis.length} 家</span><div>${g.vis.map(o=>`<span class="n" data-id="${o.id}" style="color:${hex(o.color)}">${o.cn}</span>`).join('<span style="opacity:.4">、</span>')}</div>`;
+ g.el.style.transform='none';g.el.style.display='block';g.el.style.visibility='hidden';g.w=g.el.offsetWidth;g.h=g.el.offsetHeight;g.el.style.visibility='';g.el.style.display='none';g.init=false;});}
+const _applyFilter=applyFilter;applyFilter=function(){_applyFilter();buildCards();};
+const tmp=new THREE.Vector3(),camDir=new THREE.Vector3();
+function updateCards(){const W=innerWidth,H=innerHeight;const cd=camera.position.length();camDir.copy(camera.position).normalize();
+ const sc=THREE.MathUtils.clamp(2.3/cd,.72,1);
+ tmp.set(0,0,0).project(camera);const cx=(tmp.x+1)/2*W,cy=(1-tmp.y)/2*H;
+ // horizon: point visible if dot(n,camPos) > R
+ const act=[];const shown=started&&introT>=1;
+ groups.forEach(g=>{const f=g.n.dot(camera.position)/R;const face=(f-1)/(cd-1);g.face=face; // 1 at center
+  if(!shown||!g.vis.length||face<.06){g.act=false;return;}
+  tmp.copy(g.pos).project(camera);g.dx=(tmp.x+1)/2*W;g.dy=(1-tmp.y)/2*H;if(g.dx<(W>1100?250:0)||g.dx>(W>1100?W-310:W)||g.dy<0||g.dy>H){g.act=false;return;}
+  let ox=g.dx-cx,oy=g.dy-cy;const l=Math.hypot(ox,oy)||1;ox/=l;oy/=l;if(l<4){ox=.6;oy=-.8;}
+  const L=28+22*sc,w=g.w*sc,h=g.h*sc;g.sw=w;g.sh=h;
+  g.tx=g.dx+ox*(L+w/2*Math.abs(ox))-0;g.ty=g.dy+oy*(L+h/2*Math.abs(oy));
+  if(!g.init){g.x=g.tx;g.y=g.ty;g.init=true;}g.act=true;act.push(g);});
+ act.sort((a,b)=>b.vis.length-a.vis.length||b.face-a.face);
+ for(let it=0;it<6;it++){
+  act.forEach(g=>{g.x+=(g.tx-g.x)*.12;g.y+=(g.ty-g.y)*.12;});
+  for(let i=0;i<act.length;i++)for(let j=i+1;j<act.length;j++){const a=act[i],b=act[j];
+   const ox=(a.sw+b.sw)/2+6-Math.abs(a.x-b.x),oy=(a.sh+b.sh)/2+5-Math.abs(a.y-b.y);
+   if(ox>0&&oy>0){if(ox<oy){const s=(a.x<b.x?-1:1)*ox/2;a.x+=s*.35;b.x-=s*.65;}else{const s=(a.y<b.y?-1:1)*oy/2;a.y+=s*.35;b.y-=s*.65;}}}
+  const xl=W>1100?285:6,xr=W>1100?W-335:W-6;act.forEach(g=>{g.x=THREE.MathUtils.clamp(g.x,g.sw/2+xl,xr-g.sw/2);g.y=THREE.MathUtils.clamp(g.y,g.sh/2+6,H-g.sh/2-6);});}
+ // greedy declutter: drop cards still overlapping a higher-priority one, or with very long leaders
+ const placed=[];act.forEach(g=>{let ok=Math.hypot(g.x-g.dx,g.y-g.dy)<260*sc+g.sw/2;
+  if(ok)for(const p of placed){const ox=(p.sw+g.sw)/2-Math.abs(p.x-g.x),oy=(p.sh+g.sh)/2-Math.abs(p.y-g.y);if(ox>2&&oy>2){ok=false;break;}}
+  g.keep=ok;if(ok)placed.push(g);});
+ groups.forEach(g=>{const tgt=g.act&&g.keep?THREE.MathUtils.smoothstep(g.face,.06,.3):0;g.op+=(tgt-g.op)*.18;
+  const vis=g.op>.02;g.el.style.display=vis?'block':'none';g.line.style.display=g.dot.style.display=vis?'':'none';
+  if(g.act)g.dot.setAttribute('cx',g.dx),g.dot.setAttribute('cy',g.dy),g.dot.style.display=g.act?'':'none',g.dot.style.opacity=Math.min(1,g.face*4);
+  if(!vis)return;
+  g.el.style.opacity=g.op;g.el.style.transform=`translate(${g.x-g.sw/2}px,${g.y-g.sh/2}px) scale(${sc})`;g.el.style.transformOrigin='0 0';
+  // leader: from dot to nearest card edge point
+  const ex=THREE.MathUtils.clamp(g.dx,g.x-g.sw/2,g.x+g.sw/2),ey=THREE.MathUtils.clamp(g.dy,g.y-g.sh/2,g.y+g.sh/2);
+  const mx=(g.dx+ex)/2;g.line.setAttribute('d',`M${g.dx.toFixed(1)},${g.dy.toFixed(1)} L${(Math.abs(ex-g.dx)>Math.abs(ey-g.dy)?mx:g.dx).toFixed(1)},${ey.toFixed(1)} L${ex.toFixed(1)},${ey.toFixed(1)}`);
+  g.line.style.opacity=g.op*.8;});}
+
 // ================= LOOP =================
 const clock=new THREE.Clock();let introT=0,started=false;
 mgr.onLoad=()=>{document.getElementById('loader').style.opacity=0;setTimeout(()=>document.getElementById('loader').remove(),1300);started=true;document.body.classList.add('show');applyFilter();};
@@ -398,10 +460,10 @@ function tick(){const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTim
  controls.update();
  hovered=started&&!fly?pick():null;renderer.domElement.style.cursor=hovered?'pointer':'grab';
  if(hovered){label.style.opacity=1;label.style.left=mx+'px';label.style.top=my+'px';label.innerHTML=`<b style="color:#${hovered.color.getHexString()}">●</b> ${hovered.cn} <span style="opacity:.55">· ${hovered.city}</span>`;}else label.style.opacity=0;
- composer.render();requestAnimationFrame(tick);}
+ updateCards();composer.render();requestAnimationFrame(tick);}
 tick();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloom.resolution.set(innerWidth,innerHeight);});
-window.__flyTo=flyTo;window.__ctl=controls;window.__setCty=v=>document.querySelector(`#ctyBtns button[data-c="${v}"]`).click();
+window.__flyTo=flyTo;window.__setLayer=v=>document.querySelector(`#layerBtns button[data-l="${v}"]`).click();window.__ctl=controls;window.__setCty=v=>document.querySelector(`#ctyBtns button[data-c="${v}"]`).click();
 </script>
 </body>
 </html>
