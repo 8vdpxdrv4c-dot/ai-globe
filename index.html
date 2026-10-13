@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="icon" href="data:,"><title>AI 产业链 · 中美全景地球</title>
+<link rel="icon" href="data:,"><title>全球AI产业链 · 三维地球</title>
 <style>
 :root{--gold:#ffc94a;--teal:#2ff3e0;--copper:#ff8a4c;--red:#ff3b5c;--glass:rgba(10,18,34,.78);--bd:rgba(150,200,255,.18)}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -12,14 +12,16 @@ canvas{display:block}
 #title{position:fixed;top:22px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;transition:opacity 2s}
 #title h1{font-size:28px;letter-spacing:8px;font-weight:300;background:linear-gradient(90deg,var(--gold),var(--teal),var(--copper),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px rgba(47,243,224,.15)}
 #title p{font-size:12px;letter-spacing:5px;opacity:.6;margin-top:6px}
-#ctrl{position:fixed;left:20px;top:20px;width:250px;padding:16px;opacity:0;transform:translateX(-30px);transition:all 1.2s .5s}
+#ctrl{position:fixed;left:20px;top:20px;bottom:20px;overflow-y:auto;width:262px;padding:16px;opacity:0;transform:translateX(-30px);transition:all 1.2s .5s}
 .show #ctrl,.show #story,.show #legend{opacity:1;transform:none}.show #title{opacity:1}
 .sec{font-size:11px;letter-spacing:3px;opacity:.55;margin:12px 0 7px}.sec:first-child{margin-top:0}
 .btns{display:flex;flex-wrap:wrap;gap:6px}
-button{font:inherit;font-size:12px;color:#cfe0ff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 11px;cursor:pointer;transition:all .25s}
+button{font:inherit;font-size:11.5px;color:#cfe0ff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 11px;cursor:pointer;transition:all .25s}
 button:hover{background:rgba(255,255,255,.14)}
 button.on{background:rgba(47,243,224,.18);border-color:var(--teal);color:#fff;box-shadow:0 0 14px rgba(47,243,224,.35)}
 button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.sb{padding:3px 8px;font-size:11px}.sb .bd{display:inline-block;min-width:14px;padding:0 3px;border-radius:4px;font-size:9.5px;margin-right:4px;color:#0b1220;font-weight:700}
+.cl .sg{display:inline-block;font-size:9px;padding:0 4px;border-radius:3px;color:#fff;margin-right:4px;vertical-align:1px}
 #stats{font-size:12px;opacity:.75;margin-top:12px;line-height:1.7}
 #stats b{color:var(--teal);font-size:16px}
 #story{position:fixed;right:20px;top:20px;bottom:20px;width:300px;padding:18px;overflow-y:auto;opacity:0;transform:translateX(30px);transition:all 1.2s .8s}
@@ -59,13 +61,14 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
 #ctrl,#story,#info,#legend,#title{z-index:2}
 @media(max-width:1100px){#story{display:none}}
 </style>
+<script src="data.js"></script>
 <script type="importmap">
 {"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/addons/"}}
 </script>
 </head>
 <body>
 <div id="loader"><div class="ring"></div><div>正在加载地球 · LOADING</div></div>
-<div id="title"><h1>AI 产业链全景</h1><p>美国 AI 产业链 · 中国 AI 企业 · 三维地球</p></div>
+<div id="title"><h1>全球AI产业链</h1><p>芯片 · 光模块 · PCB · 服务器 · 算力 · 模型 · 应用</p></div>
 <div id="ctrl" class="glass">
   <div class="sec">产业层级</div>
   <div class="btns" id="layerBtns">
@@ -74,13 +77,15 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
     <button data-l="mid"><span class="dot" style="background:var(--teal)"></span>中游</button>
     <button data-l="down"><span class="dot" style="background:var(--copper)"></span>下游</button>
   </div>
-  <div class="sec">国家 / 地区</div>
+  <div class="sec">细分环节 <span id="segClr" style="cursor:pointer;opacity:.7;margin-left:6px">清除</span></div>
+  <div class="btns" id="segBtns"></div>
+  <div class="sec">地区</div>
   <div class="btns" id="ctyBtns">
-    <button data-c="all" class="on">全部</button><button data-c="US">美国</button><button data-c="CN">中国</button>
+    <button data-c="all" class="on">全部</button><button data-c="US">美国</button><button data-c="CN">中国大陆</button><button data-c="TW">台湾</button><button data-c="SEA">东南亚/南亚</button><button data-c="JK">日韩</button><button data-c="EU">欧洲</button><button data-c="ME">中东</button>
   </div>
   <div class="sec">视角飞行</div>
   <div class="btns" id="flyBtns">
-    <button data-f="bay">湾区</button><button data-f="ne">东北部</button><button data-f="us">全美</button><button data-f="cn">中国</button><button data-f="globe">全球</button>
+    <button data-f="globe">全球</button><button data-f="us">美国</button><button data-f="bay">湾区</button><button data-f="cn">中国</button><button data-f="yrd">长三角</button><button data-f="prd">珠三角</button><button data-f="tw">台湾</button><button data-f="sea">东南亚</button><button data-f="jk">日韩</button><button data-f="eu">欧洲</button>
   </div>
   <div class="sec">显示</div>
   <div class="btns">
@@ -95,7 +100,7 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
   <span><i style="color:var(--gold);background:var(--gold)"></i>上游 芯片/制造/系统/能源</span>
   <span><i style="color:var(--teal);background:var(--teal)"></i>中游 算力/云/模型</span>
   <span><i style="color:var(--copper);background:var(--copper)"></i>下游 应用/机器人</span>
-  <span><i style="color:var(--red);background:var(--red)"></i>中国企业</span>
+  <span style="opacity:.7">卡片色条 = 产业层级 · 角标 = 细分环节</span>
 </div>
 
 <script type="module">
@@ -108,133 +113,12 @@ import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 
 // ================= DATA =================
 // [id, 中文名, English, 城市, lat, lon, layer, country, 角色, 描述]
-const D = [
-// ---- US upstream
-['nvda','英伟达','NVIDIA','加州 圣克拉拉',37.3708,-121.9637,'up','US','GPU / AI 加速计算','全球 AI 训练与推理 GPU 的绝对主导者，CUDA 生态与 Blackwell/Rubin 平台是整个算力链条的核心。'],
-['amd','超威半导体','AMD','加州 圣克拉拉',37.3800,-121.9700,'up','US','GPU / CPU','Instinct MI 系列加速器与 EPYC 服务器 CPU，英伟达最主要的挑战者。'],
-['intc','英特尔','Intel','加州 圣克拉拉',37.3875,-121.9636,'up','US','CPU / 晶圆制造','总部所在地；推进 IDM 2.0 与代工业务，Xeon 与 Gaudi 产品线。'],
-['mrvl','迈威尔','Marvell','加州 圣克拉拉',37.3770,-121.9590,'up','US','定制 ASIC / 光互连','为云厂商定制 AI 加速芯片，并提供数据中心光电互连 DSP。'],
-['amat','应用材料','Applied Materials','加州 圣克拉拉',37.3740,-121.9910,'up','US','半导体设备','全球最大的半导体设备商，沉积、刻蚀、离子注入等关键工艺设备。'],
-['anet','Arista 网络','Arista Networks','加州 圣克拉拉',37.3920,-121.9790,'up','US','数据中心以太网交换','AI 集群高性能以太网交换机，服务超大规模云厂商。'],
-['avgo','博通','Broadcom','加州 帕洛阿尔托',37.4110,-122.1470,'up','US','定制 AI 芯片 / 网络芯片','为 Google TPU 等提供定制 XPU，Tomahawk/Jericho 交换芯片。'],
-['snps','新思科技','Synopsys','加州 桑尼维尔',37.4030,-122.0310,'up','US','EDA / IP','芯片设计自动化软件与 IP，几乎所有先进芯片的设计起点。'],
-['cdns','楷登电子','Cadence','加州 圣何塞',37.4170,-121.9370,'up','US','EDA / 系统仿真','与 Synopsys 并列的 EDA 双雄。'],
-['smci','超微电脑','Supermicro','加州 圣何塞',37.4100,-121.9230,'up','US','AI 服务器','GPU 服务器与液冷机架整机供应商。'],
-['lite','Lumentum','Lumentum','加州 圣何塞',37.4040,-121.9500,'up','US','光器件 / 激光','数据中心光模块所需激光器与光学元件。'],
-['csco','思科','Cisco','加州 圣何塞',37.4100,-121.9550,'up','US','网络设备','企业与数据中心网络，AI 以太网基础设施。'],
-['lrcx','泛林集团','Lam Research','加州 弗里蒙特',37.4900,-121.9450,'up','US','刻蚀 / 沉积设备','先进逻辑与 3D NAND、HBM 关键刻蚀设备。'],
-['klac','科磊','KLA','加州 米尔皮塔斯',37.4320,-121.9000,'up','US','量测 / 检测设备','晶圆缺陷检测与过程控制，良率保障者。'],
-['aapl','苹果','Apple','加州 库比蒂诺',37.3349,-122.0090,'up','US','自研芯片 / 终端 AI','Apple Silicon 与 Apple Intelligence 端侧 AI。'],
-['qcom','高通','Qualcomm','加州 圣迭戈',32.8960,-117.1960,'up','US','移动 / 边缘 AI 芯片','骁龙平台与 AI PC、边缘推理芯片。'],
-['intc-or','英特尔 希尔斯伯勒','Intel Hillsboro','俄勒冈 希尔斯伯勒',45.5430,-122.9600,'up','US','先进制程研发','Intel 最重要的工艺研发基地 (Ronler Acres)。'],
-['mu','美光','Micron','爱达荷 博伊西',43.5280,-116.1470,'up','US','DRAM / HBM','美国唯一 DRAM 大厂，HBM 为 AI GPU 供应高带宽内存。'],
-['mu-ny','美光 克莱项目','Micron Clay','纽约州 克莱',43.1800,-76.1700,'up','US','超大型存储晶圆厂项目','规划中的巨型 DRAM 制造园区。'],
-['mu-va','美光 马纳萨斯','Micron Manassas','弗吉尼亚 马纳萨斯',38.7510,-77.4750,'up','US','存储制造','面向汽车、工业的存储芯片产线。'],
-['tsmc-az','台积电 亚利桑那','TSMC Arizona','亚利桑那 凤凰城',33.7500,-112.2500,'up','US','先进晶圆代工','台积电美国晶圆厂，已为英伟达等生产先进制程芯片。'],
-['intc-az','英特尔 钱德勒','Intel Ocotillo','亚利桑那 钱德勒',33.2730,-111.8870,'up','US','晶圆制造','Intel 18A 等先进制程晶圆厂。'],
-['intc-nm','英特尔 里奥兰乔','Intel Rio Rancho','新墨西哥 里奥兰乔',35.2440,-106.6600,'up','US','先进封装','Foveros 3D 先进封装基地。'],
-['txn','德州仪器','Texas Instruments','得州 达拉斯/理查森/谢尔曼',32.9110,-96.7520,'up','US','模拟 / 电源芯片','模拟与电源管理芯片，谢尔曼新建 300mm 晶圆厂。'],
-['ssg','三星 奥斯汀','Samsung Austin','得州 奥斯汀',30.3880,-97.6380,'up','US','晶圆代工','三星在美晶圆代工基地。'],
-['ssg-t','三星 泰勒项目','Samsung Taylor','得州 泰勒',30.5700,-97.4100,'up','US','先进代工项目','新建先进制程晶圆厂。'],
-['dell','戴尔','Dell','得州 朗德罗克',30.4840,-97.6630,'up','US','AI 服务器 / 系统','PowerEdge AI 服务器，交付大型 GPU 集群。'],
-['hpe','慧与','HPE','得州 斯普林',30.0800,-95.4170,'up','US','服务器 / 超算','Cray 超算与 AI 系统。'],
-['skh','SK 海力士 印第安纳项目','SK hynix West Lafayette','印第安纳 西拉法叶',40.4260,-86.9080,'up','US','HBM 先进封装项目','美国 HBM 封装工厂项目，紧邻普渡大学。'],
-['vrt','维谛技术','Vertiv','俄亥俄 哥伦布',39.9612,-82.9988,'up','US','数据中心电力 / 液冷','供配电、热管理与液冷，AI 数据中心能源底座。'],
-['gfs','格芯','GlobalFoundries','纽约州 马耳他',42.9700,-73.7600,'up','US','晶圆代工','Fab 8，特色工艺代工。'],
-['cohr','Coherent','Coherent','宾州 萨克森堡',40.7540,-79.8100,'up','US','光模块 / 激光材料','800G/1.6T 光模块与化合物半导体材料。'],
-['ter','泰瑞达','Teradyne','马萨诸塞 北雷丁',42.5750,-71.0790,'up','US','半导体测试 / 协作机器人','芯片测试设备 (含 HBM/GPU) 与 UR 协作机器人。'],
-['adi','亚德诺','Analog Devices','马萨诸塞 威尔明顿',42.5460,-71.1730,'up','US','模拟 / 混合信号','高性能模拟、电源与传感器芯片。'],
-['gev','GE Vernova','GE Vernova','马萨诸塞 剑桥',42.3736,-71.1097,'up','US','发电 / 电网','燃气轮机与电网设备，为 AI 数据中心供能。'],
-['hubb','哈勃','Hubbell','康涅狄格 谢尔顿',41.3165,-73.0932,'up','US','电力配电设备','电网与数据中心电气元件。'],
-// ---- US midstream
-['aws','亚马逊 / AWS','Amazon / AWS','华盛顿 西雅图',47.6220,-122.3365,'mid','US','云计算 / 自研芯片','全球最大云服务商，Trainium/Inferentia 自研芯片，投资 Anthropic。'],
-['msft','微软','Microsoft','华盛顿 雷德蒙德',47.6400,-122.1290,'mid','US','云 / AI 平台','Azure 与 OpenAI 深度合作，Copilot 全家桶。'],
-['goog-or','谷歌 达尔斯','Google The Dalles','俄勒冈 达尔斯',45.6320,-121.2000,'mid','US','超大规模数据中心','谷歌首个自建数据中心。'],
-['meta-or','Meta 普赖恩维尔','Meta Prineville','俄勒冈 普赖恩维尔',44.2990,-120.8340,'mid','US','超大规模数据中心','Meta 首个自建数据中心园区。'],
-['aws-or','AWS 俄勒冈','AWS Oregon (us-west-2)','俄勒冈 博德曼',45.8400,-119.7000,'mid','US','云区域','AWS us-west-2 区域。'],
-['goog-ia','谷歌 康瑟尔布拉夫斯','Google Council Bluffs','艾奥瓦 康瑟尔布拉夫斯',41.2619,-95.8608,'mid','US','超大规模数据中心','谷歌在中西部的大型数据中心。'],
-['meta-ia','Meta 阿尔图纳','Meta Altoona','艾奥瓦 阿尔图纳',41.6440,-93.4650,'mid','US','超大规模数据中心','Meta 风电供能数据中心。'],
-['aws-oh','AWS 俄亥俄','AWS Ohio (us-east-2)','俄亥俄 哥伦布地区',40.0990,-83.1140,'mid','US','云区域','AWS us-east-2 区域。'],
-['meta-oh','Meta 新奥尔巴尼','Meta New Albany','俄亥俄 新奥尔巴尼',40.0810,-82.8090,'mid','US','AI 数据中心','Meta AI 训练集群园区。'],
-['stargate','星际之门 阿比林','Stargate Abilene','得州 阿比林',32.4487,-99.7331,'mid','US','超大规模 AI 算力','OpenAI/Oracle/软银 "Stargate" 首个吉瓦级 AI 数据中心园区。'],
-['crwv','CoreWeave','CoreWeave','新泽西 利文斯顿',40.7959,-74.3149,'mid','US','GPU 云','专注 AI 的 GPU 云服务商，英伟达重要合作伙伴。'],
-['aws-va','AWS 阿什本','AWS Ashburn (us-east-1)','弗吉尼亚 阿什本',39.0438,-77.4874,'mid','US','全球最大数据中心集群','"数据中心小巷"，全球互联网流量枢纽。'],
-['hq2','亚马逊 第二总部','Amazon HQ2','弗吉尼亚 阿灵顿',38.8590,-77.0510,'mid','US','企业总部','亚马逊第二总部。'],
-['oai','OpenAI','OpenAI','加州 旧金山',37.7630,-122.4150,'mid','US','基础大模型','GPT 系列与 ChatGPT，生成式 AI 浪潮引领者。'],
-['anth','Anthropic','Anthropic','加州 旧金山',37.7890,-122.3970,'mid','US','基础大模型','Claude 系列模型，强调 AI 安全。'],
-['dbx','Databricks','Databricks','加州 旧金山',37.7910,-122.3930,'mid','US','数据 + AI 平台','湖仓一体与企业模型训练/部署平台。'],
-['meta','Meta','Meta','加州 门洛帕克',37.4850,-122.1480,'mid','US','开源大模型','Llama 开源模型与超大规模 AI 基础设施。'],
-['goog','谷歌','Google','加州 山景城',37.4220,-122.0841,'mid','US','模型 / 云 / TPU','Gemini 模型、Google Cloud 与 TPU。'],
-['ibm','IBM','IBM','纽约州 阿蒙克',41.1080,-73.7200,'mid','US','企业 AI / 混合云','watsonx 企业 AI 平台与量子计算。'],
-// ---- US downstream
-['crm','Salesforce','Salesforce','加州 旧金山',37.7897,-122.3972,'down','US','企业 AI 应用','Agentforce 智能体平台与 CRM。'],
-['now','ServiceNow','ServiceNow','加州 圣克拉拉',37.3960,-121.9800,'down','US','工作流 AI','企业 IT/服务工作流自动化。'],
-['adbe','Adobe','Adobe','加州 圣何塞',37.3307,-121.8940,'down','US','生成式创意','Firefly 生成式内容。'],
-['isrg','直觉外科','Intuitive Surgical','加州 桑尼维尔',37.3880,-122.0200,'down','US','手术机器人','达芬奇手术机器人系统。'],
-['figure','Figure AI','Figure','加州 圣何塞',37.3700,-121.9200,'down','US','人形机器人','通用人形机器人。'],
-['waymo','Waymo','Waymo','加州 山景城',37.4030,-122.0700,'down','US','自动驾驶','无人驾驶出租车商业化运营领先者。'],
-['rxrx','Recursion','Recursion','犹他 盐湖城',40.7608,-111.8910,'down','US','AI 制药','AI 驱动的药物发现。'],
-['de','约翰迪尔','John Deere','伊利诺伊 莫林',41.5067,-90.5151,'down','US','智能农机','自动驾驶拖拉机与精准农业。'],
-['rok','罗克韦尔自动化','Rockwell Automation','威斯康星 密尔沃基',43.0389,-87.9065,'down','US','工业自动化','智能制造与工业 AI。'],
-['gm','通用 / 福特','GM / Ford','密歇根 底特律/迪尔伯恩',42.3314,-83.0458,'down','US','智能汽车','辅助驾驶与智能制造。'],
-['tem','Tempus','Tempus AI','伊利诺伊 芝加哥',41.8881,-87.6298,'down','US','AI 医疗','精准医疗数据与 AI 诊断。'],
-['pltr','Palantir 丹佛','Palantir Denver','科罗拉多 丹佛',39.7392,-104.9903,'down','US','数据分析 / AIP','政企数据平台与 AIP。'],
-['pltr-fl','Palantir 总部','Palantir Aventura','佛罗里达 阿文图拉',25.9565,-80.1392,'down','US','总部','Palantir 新总部所在地。'],
-['tsla','特斯拉','Tesla','得州 奥斯汀',30.2220,-97.6170,'down','US','自动驾驶 / 人形机器人','FSD、Optimus 机器人与 Dojo/Cortex 训练集群。'],
-['anduril','Anduril','Anduril','加州 科斯塔梅萨',33.6846,-117.9087,'down','US','国防 AI','自主防务系统。'],
-['aur','Aurora','Aurora','宾州 匹兹堡',40.4406,-79.9959,'down','US','自动驾驶卡车','无人驾驶干线物流。'],
-['path','UiPath','UiPath','纽约州 纽约市',40.7128,-74.0060,'down','US','智能体自动化','RPA 与 Agentic 自动化。'],
-['bd','波士顿动力','Boston Dynamics','马萨诸塞 沃尔瑟姆',42.3765,-71.2356,'down','US','机器人','Atlas、Spot 机器人。'],
-['amzr','亚马逊机器人','Amazon Robotics','马萨诸塞 韦斯特伯勒',42.2695,-71.6162,'down','US','仓储机器人','仓储物流机器人。'],
-['cgnx','康耐视','Cognex','马萨诸塞 内蒂克',42.2834,-71.3495,'down','US','机器视觉','工业机器视觉。'],
-// ---- China upstream
-['hw','华为 / 昇腾','Huawei Ascend','广东 深圳',22.6570,114.0580,'up','CN','AI 芯片 / 全栈','昇腾 910 系列 AI 芯片、CANN 与 MindSpore，国产算力核心。'],
-['smic','中芯国际','SMIC','上海',31.2050,121.6000,'up','CN','晶圆代工','中国大陆最大晶圆代工厂，国产先进制程主力。'],
-['camb','寒武纪','Cambricon','北京',39.9800,116.3300,'up','CN','AI 芯片','思元系列云端 AI 芯片。'],
-['hygon','海光信息','Hygon','天津 / 北京',39.0840,117.2000,'up','CN','x86 CPU / DCU','海光 CPU 与深算 DCU 加速卡。'],
-['mthreads','摩尔线程','Moore Threads','北京',39.9100,116.4600,'up','CN','全功能 GPU','国产全功能 GPU 与 MUSA 架构。'],
-['biren','壁仞科技','Biren','上海',31.1900,121.4400,'up','CN','通用 GPU','BR 系列 GPGPU。'],
-['cxmt','长鑫存储','CXMT','安徽 合肥',31.8200,117.2300,'up','CN','DRAM','国产 DRAM 龙头，布局 HBM。'],
-['ymtc','长江存储','YMTC','湖北 武汉',30.4600,114.4200,'up','CN','3D NAND','Xtacking 架构闪存。'],
-['inspur','浪潮信息','Inspur','山东 济南',36.6700,117.1200,'up','CN','AI 服务器','中国最大 AI 服务器厂商。'],
-['sugon','中科曙光','Sugon','北京',40.0500,116.2800,'up','CN','服务器 / 超算','高性能计算与液冷数据中心。'],
-// ---- China midstream
-['ali','阿里云 / 通义千问','Alibaba Cloud / Qwen','浙江 杭州',30.2800,120.0200,'mid','CN','云 / 开源大模型','中国最大云厂商，Qwen 开源模型系列全球领先。'],
-['tc','腾讯 混元','Tencent Hunyuan','广东 深圳',22.5400,113.9350,'mid','CN','云 / 大模型','腾讯云与混元大模型。'],
-['bidu','百度 文心','Baidu ERNIE','北京',40.0500,116.3000,'mid','CN','大模型 / 昆仑芯','文心大模型与昆仑芯 AI 芯片。'],
-['byte','字节跳动 豆包','ByteDance Doubao','北京',39.9600,116.3000,'mid','CN','大模型 / 火山引擎','豆包大模型与火山引擎云。'],
-['ds','深度求索','DeepSeek','浙江 杭州',30.2500,120.1700,'mid','CN','开源大模型','DeepSeek-V3/R1，以极高性价比震动全球。'],
-['kimi','月之暗面 Kimi','Moonshot AI','北京',39.9900,116.3100,'mid','CN','大模型','Kimi 长上下文大模型。'],
-['zhipu','智谱','Zhipu AI','北京',40.0000,116.3300,'mid','CN','大模型','GLM 系列模型，源自清华。'],
-['minimax','MiniMax','MiniMax','上海',31.2300,121.4700,'mid','CN','多模态大模型','海螺 AI、多模态与视频生成。'],
-['step','阶跃星辰','StepFun','上海',31.2200,121.5300,'mid','CN','多模态大模型','Step 系列多模态模型。'],
-['sense','商汤科技','SenseTime','上海',31.1700,121.3900,'mid','CN','视觉 AI / 大模型','日日新大模型与 AI 大装置。'],
-['dc-gz','东数西算 贵安','Gui\'an DC Cluster','贵州 贵安',26.4200,106.4600,'mid','CN','国家算力枢纽','东数西算贵州枢纽，华为云、腾讯、苹果等数据中心。'],
-['dc-nm','东数西算 乌兰察布','Ulanqab DC Cluster','内蒙古 乌兰察布',41.0000,113.1300,'mid','CN','国家算力枢纽','内蒙古枢纽，阿里、华为、快手等数据中心。'],
-['dc-nx','东数西算 中卫','Zhongwei DC Cluster','宁夏 中卫',37.5100,105.1900,'mid','CN','国家算力枢纽','宁夏枢纽，亚马逊云、美团等数据中心。'],
-// ---- China downstream
-['ifly','科大讯飞','iFlytek','安徽 合肥',31.8300,117.1400,'down','CN','语音 / 教育 AI','讯飞星火大模型与智能语音。'],
-['unitree','宇树科技','Unitree','浙江 杭州',30.1900,120.1900,'down','CN','四足 / 人形机器人','高性价比四足与人形机器人。'],
-['ubtech','优必选','UBTech','广东 深圳',22.5900,113.9900,'down','CN','人形机器人','Walker 系列工业人形机器人。'],
-['dji','大疆','DJI','广东 深圳',22.5800,113.9500,'down','CN','无人机 / 智能视觉','全球消费级无人机霸主。'],
-['byd','比亚迪','BYD','广东 深圳',22.6900,114.3500,'down','CN','智能电动车','"天神之眼"智能驾驶。'],
-['horizon','地平线','Horizon Robotics','北京',40.0400,116.2700,'down','CN','智驾芯片','征程系列智能驾驶芯片。'],
-['apollo','百度 Apollo','Baidu Apollo','北京 亦庄',39.7900,116.5000,'down','CN','自动驾驶','萝卜快跑无人驾驶出行。'],
-];
-const ARCS=[
- ['amat','tsmc-az'],['lrcx','tsmc-az'],['klac','tsmc-az'],['snps','nvda'],['cdns','nvda'],
- ['tsmc-az','nvda'],['tsmc-az','amd'],['tsmc-az','aapl'],['mu','nvda'],['skh','nvda'],['ssg-t','tsla'],
- ['nvda','stargate'],['nvda','crwv'],['nvda','aws-va'],['nvda','meta-oh'],['nvda','goog-ia'],['nvda','smci'],['nvda','dell'],
- ['avgo','goog'],['mrvl','aws'],['vrt','stargate'],['gev','stargate'],['anet','meta-ia'],['cohr','aws-va'],
- ['stargate','oai'],['crwv','oai'],['aws-va','anth'],['goog-or','goog'],['msft','oai'],
- ['oai','crm'],['anth','path'],['goog','waymo'],['nvda','figure'],['nvda','tsla'],['dbx','tem'],['msft','pltr'],
- ['smic','hw'],['smic','camb'],['smic','hygon'],['cxmt','hw'],['ymtc','inspur'],
- ['hw','dc-gz'],['hw','dc-nm'],['inspur','dc-nx'],['inspur','ali'],['sugon','byte'],['camb','byte'],
- ['dc-nm','ali'],['dc-gz','tc'],['dc-nx','ds'],['ali','unitree'],['bidu','apollo'],['horizon','byd'],['hw','byd'],['ds','ifly'],['mthreads','zhipu'],['biren','sense']
-];
+const AD=window.AI_DATA,SEG=AD.segments,REG=AD.regions;
+const D=AD.sites.map(([id,cn,en,city,lat,lon,seg,reg,desc])=>[id,cn,en,city,lat,lon,SEG[seg][1],reg,SEG[seg][0],desc,seg]);
+const ARCS=AD.arcs;
 const COL={up:new THREE.Color('#ffc94a'),mid:new THREE.Color('#2ff3e0'),down:new THREE.Color('#ff8a4c'),CN:new THREE.Color('#ff3b5c')};
 const LNAME={up:'上游',mid:'中游',down:'下游'};
-const LDESC={up:'芯片 / 制造 / 系统 / 能源',mid:'算力 / 云 / 模型',down:'应用 / 机器人'};
+const LDESC={up:'芯片/制造/器件/系统/能源',mid:'算力/云/模型/数据',down:'应用/终端/机器人'};
 
 // ================= SCENE =================
 const R=1;
@@ -253,21 +137,21 @@ const ll2v=(lat,lon,r=R)=>{const p=(90-lat)*Math.PI/180,t=(lon+180)*Math.PI/180;
 const mgr=new THREE.LoadingManager();
 const tl=new THREE.TextureLoader(mgr);
 const tex=(n,srgb=true)=>{const t=tl.load('textures/'+n);t.anisotropy=renderer.capabilities.getMaxAnisotropy();if(srgb)t.colorSpace=THREE.SRGBColorSpace;return t;};
-const tMap=tex('map_8k.jpg'),tUS=tex('patch_us.jpg'),tCN=tex('patch_cn.jpg'),tH=tex('height_4k.jpg',false);
-[tUS,tCN].forEach(t=>{t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;});
+const tMap=tex('map_8k.jpg'),tUS=tex('patch_us.jpg'),tCN=tex('patch_cn.jpg'),tSEA=tex('patch_sea.jpg'),tJK=tex('patch_jk.jpg'),tEU=tex('patch_eu.jpg'),tH=tex('height_4k.jpg',false);
+[tUS,tCN,tSEA,tJK,tEU].forEach(t=>{t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;});
 const sunDir=new THREE.Vector3(1,.5,.5).normalize();
 const earthU={uMap:{value:tMap},uUS:{value:tUS},uCN:{value:tCN},uH:{value:tH},uSun:{value:sunDir},uTime:{value:0},
- uBoxUS:{value:new THREE.Vector4(-126,-66,24,50)},uBoxCN:{value:new THREE.Vector4(73,135,18,54)},uDisp:{value:.0035}};
+ uBoxUS:{value:new THREE.Vector4(-126,-66,24,50)},uBoxCN:{value:new THREE.Vector4(73,135,18,54)},uSEA:{value:tSEA},uJK:{value:tJK},uEU:{value:tEU},uBoxSEA:{value:new THREE.Vector4(92,125,-10,24)},uBoxJK:{value:new THREE.Vector4(124,146,30,46)},uBoxEU:{value:new THREE.Vector4(-10,32,36,60)},uDisp:{value:.0035}};
 const earth=new THREE.Mesh(new THREE.SphereGeometry(R,384,192),new THREE.ShaderMaterial({uniforms:earthU,
 vertexShader:`uniform sampler2D uH;uniform float uDisp;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
 void main(){vUv=uv;vN=normalize(mat3(modelMatrix)*normal);float h=texture2D(uH,uv).r;vec3 p=position*(1.+h*uDisp);vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader:`uniform sampler2D uMap,uUS,uCN,uH;uniform vec3 uSun;uniform vec4 uBoxUS,uBoxCN;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
+fragmentShader:`uniform sampler2D uMap,uUS,uCN,uH,uSEA,uJK,uEU;uniform vec3 uSun;uniform vec4 uBoxUS,uBoxCN,uBoxSEA,uBoxJK,uBoxEU;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
 vec3 mapPatch(sampler2D t,vec4 b,vec3 base,float lon,float lat){vec2 p=vec2((lon-b.x)/(b.y-b.x),(lat-b.z)/(b.w-b.z));
  vec2 e=min(p,1.-p);float m=smoothstep(0.,.03,min(e.x,e.y));if(m<=0.)return base;return mix(base,texture2D(t,p).rgb,m);}
 void main(){
  vec3 n=normalize(vN);float lon=vUv.x*360.-180.,lat=vUv.y*180.-90.;
  vec3 c=texture2D(uMap,vUv).rgb;
- c=mapPatch(uUS,uBoxUS,c,lon,lat);c=mapPatch(uCN,uBoxCN,c,lon,lat);
+ c=mapPatch(uUS,uBoxUS,c,lon,lat);c=mapPatch(uSEA,uBoxSEA,c,lon,lat);c=mapPatch(uCN,uBoxCN,c,lon,lat);c=mapPatch(uJK,uBoxJK,c,lon,lat);c=mapPatch(uEU,uBoxEU,c,lon,lat);
  // hillshade from heightmap (finite differences)
  vec2 e=vec2(1./4096.,1./2048.);
  float hx=texture2D(uH,vUv+vec2(e.x,0.)).r-texture2D(uH,vUv-vec2(e.x,0.)).r;
@@ -308,10 +192,9 @@ vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*m
 fragmentShader:`uniform vec3 uC;uniform float uTime,uPhase,uHi;varying vec2 vUv;void main(){float d=length(vUv-.5)*2.;float t=fract(uTime*.6+uPhase/6.28);float ring=smoothstep(.08,0.,abs(d-t))*(1.-t);float core=smoothstep(.28,.0,d);gl_FragColor=vec4(uC*.8,min(1.,(ring*.8+core)*(1.+uHi)));}`});
 const headGeo=new THREE.SphereGeometry(1,12,12);
 const markers=[];const byId={};
-D.forEach(r=>{const [id,cn,en,city,lat,lon,layer,cty,role,desc]=r;
- const o={id,cn,en,city,lat,lon,layer,cty,role,desc};
- const c=cty==='CN'?COL.CN.clone():COL[layer].clone();
- if(cty==='CN'){c.lerp(COL[layer],.18);} o.color=c;
+D.forEach(r=>{const [id,cn,en,city,lat,lon,layer,cty,role,desc,seg]=r;
+ const o={id,cn,en,city,lat,lon,layer,cty,role,desc,seg};
+ const c=COL[layer].clone();o.color=c;
  const h=layer==='up'?.09:layer==='mid'?.12:.07;o.h=h*(.85+Math.random()*.3);
  const base=ll2v(lat,lon,R*1.001);o.pos=base;
  const g=new THREE.Group();g.position.copy(base);g.lookAt(base.clone().multiplyScalar(2));
@@ -341,17 +224,21 @@ const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.35,.4
 
 // ================= UI =================
 let fLayer='all',fCty='all',showArcs=true;
-const visible=o=>(fLayer==='all'||o.layer===fLayer)&&(fCty==='all'||o.cty===fCty);
+let fSeg=new Set();const visible=o=>(fLayer==='all'||o.layer===fLayer)&&(fCty==='all'||o.cty===fCty)&&(!fSeg.size||fSeg.has(o.seg));
 function applyFilter(){markers.forEach(o=>o.target=visible(o)?1:0);updateStats();}
 function updateStats(){const v=markers.filter(visible);const cnt=k=>v.filter(o=>o.layer===k).length;
- document.getElementById('stats').innerHTML=`当前显示 <b>${v.length}</b> 家 · 美国 ${v.filter(o=>o.cty==='US').length} / 中国 ${v.filter(o=>o.cty==='CN').length}<br>上游 ${cnt('up')} · 中游 ${cnt('mid')} · 下游 ${cnt('down')} · 连线 ${arcs.filter(a=>visible(a.A)&&visible(a.B)).length}`;}
+ document.getElementById('stats').innerHTML=`当前显示 <b>${v.length}</b> 处 · 连线 ${arcs.filter(a=>visible(a.A)&&visible(a.B)).length}<br>上游 ${cnt('up')} · 中游 ${cnt('mid')} · 下游 ${cnt('down')}<br>`+Object.keys(REG).map(k=>`${REG[k]} ${v.filter(o=>o.cty===k).length}`).join(' · ');}
 const grp=(id,attr,fn)=>document.querySelectorAll(`#${id} button`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} button`).forEach(x=>x.classList.remove('on'));b.classList.add('on');fn(b.dataset[attr]);});
 grp('layerBtns','l',v=>{fLayer=v;applyFilter();});
-grp('ctyBtns','c',v=>{fCty=v;applyFilter();if(v==='CN')flyTo('cn');else if(v==='US')flyTo('us');});
+grp('ctyBtns','c',v=>{fCty=v;applyFilter();const m={US:'us',CN:'cn',TW:'tw',SEA:'sea',JK:'jk',EU:'eu',ME:'me'};if(m[v])flyTo(m[v]);});
+const SEGINK={up:'#e0a82a',mid:'#2bc6bb',down:'#e58050'};
+document.getElementById('segBtns').innerHTML=Object.entries(SEG).map(([k,[n,l,ab]])=>`<button class="sb" data-s="${k}" title="${n}"><span class="bd" style="background:${SEGINK[l]}">${ab}</span>${n}</button>`).join('');
+document.querySelectorAll('#segBtns button').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(fSeg.has(k))fSeg.delete(k);else fSeg.add(k);b.classList.toggle('on',fSeg.has(k));applyFilter();});
+document.getElementById('segClr').onclick=()=>{fSeg.clear();document.querySelectorAll('#segBtns button').forEach(b=>b.classList.remove('on'));applyFilter();};
 const rotBtn=document.getElementById('rotBtn');rotBtn.onclick=()=>{if(!controls.autoRotate&&controls.target.lengthSq()>0){flyTo('globe');setTimeout(()=>{controls.autoRotate=true;rotBtn.classList.add('on');},2300);return;}controls.autoRotate=!controls.autoRotate;rotBtn.classList.toggle('on',controls.autoRotate);};
 const arcBtn=document.getElementById('arcBtn');arcBtn.onclick=()=>{showArcs=!showArcs;arcBtn.classList.toggle('on',showArcs);};
 
-const PRESETS={bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],us:[38.5,-97,2.7],cn:[29.5,113.5,.95,38],globe:[30,-40,4.2]};
+const PRESETS={globe:[28,85,4.2],us:[38.5,-97,2.7],bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],cn:[29.5,113.5,.95,38],yrd:[30.6,120.3,.16,45],prd:[22.6,113.9,.09,45],tw:[23.6,120.8,.13,40],sea:[8,104,.75,30],jk:[34.5,133,.42,38],eu:[49,7,.55,38],me:[27,47,.9,30]};
 let fly=null;
 function flyTo(k,latlon){const [lat,lon,d,tilt=0]=latlon||PRESETS[k];const from=camera.position.clone();let to,tgt;
  if(tilt){tgt=ll2v(lat,lon,R);const n=tgt.clone().normalize();const east=new THREE.Vector3(0,1,0).cross(n).normalize();const north=n.clone().cross(east);
@@ -367,11 +254,12 @@ function slerpCam(f,t){const a=f.from.length(),b=f.to.length();const da=f.from.c
 
 // story
 const story=[
- ['总览','#9ad7ff','AI 产业链可拆为三层：上游提供芯片、设备、制造、服务器与电力；中游把算力转化为云服务与基础模型；下游将模型落地为企业软件、自动驾驶与机器人。美国形成"湾区设计 + 亚利桑那/得州制造 + 中西部与弗吉尼亚算力"的空间格局。','globe'],
- ['上游 · 芯片与制造','#ffc94a','硅谷圣克拉拉聚集英伟达、AMD、英特尔、应用材料；EDA 双雄 Synopsys 与 Cadence、设备商 Lam 与 KLA 环伺湾区。制造正回流：台积电与英特尔落子亚利桑那，三星、德州仪器扎根得州，美光在纽约州建设巨型存储园区，SK 海力士在印第安纳建 HBM 封装厂。能源侧 GE Vernova、Vertiv、Hubbell 支撑电力需求激增。','bay'],
- ['中游 · 算力 / 云 / 模型','#2ff3e0','西雅图的 AWS 与微软、硅谷的谷歌与 Meta 是超大规模算力的主人；数据中心沿廉价电力分布于俄勒冈、艾奥瓦、俄亥俄，以及全球最大的弗吉尼亚阿什本集群。得州阿比林的"星际之门"是吉瓦级 AI 园区的象征。OpenAI、Anthropic、Databricks 则让旧金山成为模型之都。','us'],
- ['下游 · 应用与机器人','#ff8a4c','Salesforce、ServiceNow、Adobe 将智能体融入企业软件；Waymo、特斯拉、Aurora 推进自动驾驶；波士顿周边形成机器人走廊（波士顿动力、亚马逊机器人、康耐视）；Recursion、Tempus 代表 AI 医疗；约翰迪尔与罗克韦尔把 AI 带入农业与工厂。','ne'],
- ['中国 · 自主算力体系','#ff3b5c','中国 AI 以"国产芯片 + 开源模型 + 应用场景"突围：中芯国际代工、华为昇腾/寒武纪/海光/摩尔线程提供算力，长鑫与长江存储补齐存储；阿里通义千问、DeepSeek、Kimi、智谱、MiniMax 等引领开源模型；"东数西算"在贵州、内蒙古、宁夏布局国家算力枢纽；宇树、优必选、大疆、比亚迪推动具身智能与智能驾驶落地。','cn'],
+ ['全球总览','#9ad7ff','AI 产业链横跨三层二十余个细分环节：上游的芯片设计、EDA、设备、材料、晶圆代工、存储/HBM、先进封装、PCB/载板、光模块、服务器 ODM、网络与电源液冷；中游的数据中心、云、基础模型与数据平台；下游的企业软件、智驾、机器人与终端。设计在美国，制造在东亚，组装与扩产正大规模流向东南亚。','globe'],
+ ['美国 · 设计与算力','#ffc94a','英伟达、AMD、博通在湾区定义算力；EDA 与设备（Synopsys、应用材料、泛林、KLA）掌握源头；台积电/英特尔/三星/美光在亚利桑那、得州、纽约回流制造。超大规模数据中心沿弗吉尼亚、俄亥俄、艾奥瓦、得州分布，Stargate 与 xAI Colossus 引领吉瓦级集群；OpenAI、Anthropic、谷歌、Meta 争夺前沿模型。','us'],
+ ['台湾 · 制造心脏','#2ff3e0','台积电新竹—台中—台南—高雄的先进制程与竹南/嘉义 CoWoS 封装，是全球 AI 芯片的唯一高端产能；鸿海、广达、纬创、纬颖、英业达把 GPU 组装成 GB200 机柜；台达、奇鋐提供电源与液冷，欣兴、南电供应 ABF 载板。','tw'],
+ ['中国大陆 · 全链条自主','#ff3b5c','长三角集中中芯、华虹、长电、沪硅、中微、沐曦/壁仞/燧原与 MiniMax 等；珠三角有华为海思、腾讯、工业富联、胜宏、深南、鹏鼎；中际旭创、新易盛、天孚、光迅组成全球最强光模块集群，向英伟达与北美云厂商供货；东数西算 8 大枢纽承载算力，DeepSeek、通义、Kimi、智谱领跑开源模型。','cn'],
+ ['东南亚/南亚 · 产能转移','#ff8a4c','马来西亚槟城/居林是封测重镇（英特尔、美光、AMD、日月光、英飞凌），柔佛成为数据中心热点；泰国聚集中资 PCB（胜宏、沪电、景旺、鹏鼎、深南）与光模块（中际旭创、新易盛、天孚、Fabrinet）；越南有安靠、三星、富士康、立讯；新加坡有美光、格芯、联电；印度推进美光萨南德、塔塔晶圆厂与富士康金奈。','sea'],
+ ['日韩欧中东 · 关键节点','#b9a3ff','韩国三星与 SK 海力士垄断 HBM；日本东京电子、爱德万、信越、胜高、揖斐电掌握设备与材料，台积电熊本与 Rapidus 北海道补强制造；荷兰 ASML 独供 EUV、蔡司提供光学，德累斯顿聚集英飞凌与 ESMC；中东的 G42/Stargate UAE 与沙特 HUMAIN 成为新算力中心。','jk'],
 ];
 document.getElementById('story').innerHTML='<div class="sec">产业叙事 · 点击卡片飞行</div>'+story.map(s=>`<div class="card" data-f="${s[3]}"><h2><i style="background:${s[1]}"></i>${s[0]}</h2><p style="margin:0">${s[2]}</p></div>`).join('');
 document.querySelectorAll('#story .card').forEach(c=>c.onclick=()=>flyTo(c.dataset.f));
@@ -384,8 +272,8 @@ renderer.domElement.addEventListener('pointerup',e=>{if(!downAt||Math.hypot(e.cl
 function pick(){ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(markers.filter(o=>o.target).map(o=>o.hit),false);
  const eh=ray.intersectObject(earth,false)[0];let h=hits[0];if(h&&eh&&eh.distance<h.distance-.02)h=null;return h?h.object.userData.m:null;}
 function select(o){selected=o;const tagC='#'+o.color.getHexString();
- document.getElementById('infoBody').innerHTML=`<span class="tag" style="color:${tagC};border-color:${tagC}">${LNAME[o.layer]} · ${LDESC[o.layer]}</span><span class="tag" style="color:#cfe0ff;border-color:#567">${o.cty==='US'?'美国':'中国'}</span>
- <h3>${o.cn}</h3><div class="en">${o.en}</div><div class="row"><span>城市</span>${o.city}</div><div class="row"><span>角色</span>${o.role}</div><div class="row"><span>坐标</span>${o.lat.toFixed(2)}°, ${o.lon.toFixed(2)}°</div><div class="desc">${o.desc}</div>
+ document.getElementById('infoBody').innerHTML=`<span class="tag" style="color:${tagC};border-color:${tagC}">${LNAME[o.layer]} · ${LDESC[o.layer]}</span><span class="tag" style="color:#cfe0ff;border-color:#567">${REG[o.cty]}</span>
+ <h3>${o.cn}</h3><div class="en">${o.en}</div><div class="row"><span>城市</span>${o.city}</div><div class="row"><span>细分环节</span>${o.role}</div><div class="row"><span>坐标</span>${o.lat.toFixed(2)}°, ${o.lon.toFixed(2)}°</div><div class="desc">${o.desc}</div>
  ${(()=>{const rel=arcs.filter(a=>a.A===o||a.B===o).map(a=>a.A===o?'→ '+a.B.cn:'← '+a.A.cn);return rel.length?`<div class="row" style="font-size:12px"><span>链路</span>${rel.join('　')}</div>`:''})()}`;
  document.getElementById('info').classList.add('open');
  const cd=camera.position.length();flyTo(null,[o.lat-3,o.lon,Math.min(Math.max(cd,1.5),2.2)]);}
@@ -402,27 +290,22 @@ const groups=[];{const m=new Map();markers.forEach(o=>{if(!m.has(o.city))m.set(o
   const g={city,ms,n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
   el.addEventListener('click',e=>{const t=e.target.closest('[data-id]');select(t?byId[t.dataset.id]:g.vis[0]);});
   groups.push(g);});}
-const hex=c=>'#'+c.getHexString();const INK={up:'#c08a10',mid:'#0e9a91',down:'#c95f28',CN:'#d62a45'};const ink=o=>o.cty==='CN'?INK.CN:INK[o.layer];
+const hex=c=>'#'+c.getHexString();const INK={up:'#c08a10',mid:'#0e9a91',down:'#c95f28',CN:'#d62a45'};const ink=o=>INK[o.layer];
 function buildCards(){groups.forEach(g=>{g.vis=g.ms.filter(visible);if(!g.vis.length)return;
  const cnt={};g.vis.forEach(o=>cnt[o.layer]=(cnt[o.layer]||0)+1);const dom=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
- const col=g.vis[0].cty==='CN'?INK.CN:INK[dom];g.col=col;
+ const col=INK[dom];g.col=col;
  g.el.style.borderColor=col+'88';g.el.style.borderLeftColor=col;g.line.setAttribute('stroke',col);g.dot.setAttribute('fill',col);
- if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<b>${o.cn}</b> <span class="c">${o.city}</span><div class="r" style="color:${ink(o)}">${o.role}</div>`;}
- else g.el.innerHTML=`<b>${g.city.split(' ').pop()}</b> <span class="c">${g.vis.length} 家</span><div>${g.vis.map(o=>`<span class="n" data-id="${o.id}"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:1px;background:${ink(o)}"></i>${o.cn}</span>`).join('<span style="opacity:.4">、</span>')}</div>`;
+ if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<b>${o.cn}</b> <span class="c">${o.city}</span><div class="r"><span class="sg" style="background:${ink(o)}">${SEG[o.seg][2]}</span>${o.role}</div>`;}
+ else g.el.innerHTML=`<b>${g.city.split(' ').pop()}</b> <span class="c">${g.vis.length} 家</span><div>${g.vis.slice(0,8).map(o=>`<span class="n" data-id="${o.id}"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:1px;background:${ink(o)}"></i>${o.cn}</span>`).join('<span style="opacity:.4">、</span>')}${g.vis.length>8?`<span style="opacity:.6"> 等${g.vis.length}家</span>`:''}</div>`;
  g.el.style.transform='none';g.el.style.display='block';g.el.style.visibility='hidden';g.w=g.el.offsetWidth;g.h=g.el.offsetHeight;g.el.style.visibility='';g.el.style.display='none';g.init=false;});}
 const _applyFilter=applyFilter;applyFilter=function(){_applyFilter();buildCards();};
 // ================= MINIATURE BUILDINGS =================
-const FAB=new Set(['tsmc-az','intc-az','intc-or','intc-nm','ssg','ssg-t','mu','mu-ny','mu-va','gfs','smic','cxmt','ymtc','txn','skh','cohr']);
-const DC=new Set(['stargate','aws-or','aws-oh','aws-va','goog-or','goog-ia','meta-or','meta-ia','meta-oh','crwv','dc-gz','dc-nm','dc-nx']);
-const FACT=new Set(['tsla','de','gm','rok','ubtech','byd','unitree','bd','amzr','vrt','hubb','ter','cgnx','dell','hpe','smci']);
-const DOWNTOWN=new Set(['加州 旧金山','加州 圣何塞','纽约州 纽约市','上海','广东 深圳','北京','浙江 杭州','华盛顿 西雅图','伊利诺伊 芝加哥','得州 奥斯汀','加州 圣克拉拉','安徽 合肥','湖北 武汉','山东 济南','科罗拉多 丹佛','密歇根 底特律/迪尔伯恩']);
 const RING=new Set(['加州 库比蒂诺','加州 桑尼维尔','加州 门洛帕克']);
-function bType(g){const ids=g.ms.map(o=>o.id);
+const FABS=new Set(['foundry','mem']),FACTS=new Set(['pkg','pcb','optic','server','equip','mat','power','net','ind','device']);
+function bType(g){const cnt={};g.ms.forEach(o=>cnt[o.seg]=(cnt[o.seg]||0)+1);const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
  if(g.city==='加州 旧金山')return 'sf';if(RING.has(g.city))return 'ring';
- if(ids.some(i=>FAB.has(i))&&!DOWNTOWN.has(g.city))return 'fab';
- if(ids.some(i=>DC.has(i)))return 'dc';
- if(DOWNTOWN.has(g.city)&&g.ms.length>=2)return 'downtown';
- if(ids.every(i=>FACT.has(i)))return 'factory';
+ if(g.ms.length>=4)return 'downtown';
+ if(FABS.has(top))return 'fab';if(top==='dc')return 'dc';if(FACTS.has(top)||top==='auto'||top==='robot')return 'factory';
  return 'office';}
 function rng(seed){let s=seed>>>0||1;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
 const P=[],N=[],C=[],F=[],A=[],G=[],MR=[];const SMR=[];let curMR=1;const SP=[],SA=[],SG=[];
@@ -461,19 +344,19 @@ const BUILD={
  factory:R=>{shed(0,.05,.9,.55,.12,5);box(-.2,-.45,.4,.2,.2,PASTEL,1);cyl(.4,-.42,.03,.4,PASTEL,2,8);trees(R,10,.75,1);},
 };
 const btype={};groups.forEach((g,i)=>{let nn=9;groups.forEach(h=>{if(h!==g)nn=Math.min(nn,g.n.distanceTo(h.n));});curMR=Math.max(nn*.9,.0009);g.mr=curMR;const t=bType(g);btype[g.city]=t;g.btype=t;curA=g.n.clone().multiplyScalar(R*1.0012);curG=i;
- const ms=g.ms;const cnt={};ms.forEach(o=>{const k=o.cty==='CN'?'CN':o.layer;cnt[k]=(cnt[k]||0)+1;});const k=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
+ const ms=g.ms;const cnt={};ms.forEach(o=>{const k=o.layer;cnt[k]=(cnt[k]||0)+1;});const k=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
  curAcc=new THREE.Color(INK[k]);const Rr=rng([...g.city].reduce((a,c)=>a*31+c.charCodeAt(0),7));BUILD[t](Rr);
  SP.push(0,0,0);SMR.push(curMR);SA.push(curA.x,curA.y,curA.z);SG.push(i);});
 const bGeo=new THREE.BufferGeometry();
 bGeo.setAttribute('position',new THREE.Float32BufferAttribute(P,3));bGeo.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));
 bGeo.setAttribute('col',new THREE.Float32BufferAttribute(C,3));bGeo.setAttribute('flag',new THREE.Float32BufferAttribute(F,1));
 bGeo.setAttribute('anchor',new THREE.Float32BufferAttribute(A,3));bGeo.setAttribute('gid',new THREE.Float32BufferAttribute(G,1));bGeo.setAttribute('mr',new THREE.Float32BufferAttribute(MR,1));
-const bU={uScale:{value:0},uGV:{value:new Float32Array(128)},uSun:{value:sunDir}};
-const BV=`attribute vec3 anchor;attribute float gid;attribute float mr;uniform float uScale;uniform float uGV[128];
+const bU={uScale:{value:0},uGV:{value:Array.from({length:64},()=>new THREE.Vector4())},uSun:{value:sunDir}};
+const BV=`attribute vec3 anchor;attribute float gid;attribute float mr;uniform float uScale;uniform vec4 uGV[64];float gv(float g){int i=int(g+.5);vec4 v=uGV[i/4];int k=i-(i/4)*4;return k==0?v.x:k==1?v.y:k==2?v.z:v.w;}
 vec3 frame(vec3 v,vec3 a){vec3 n=normalize(a);vec3 t=normalize(cross(vec3(0.,1.,0.),n));vec3 b=cross(n,t);return t*v.x+b*v.y+n*v.z;}`;
 const bMesh=new THREE.Mesh(bGeo,new THREE.ShaderMaterial({uniforms:bU,
  vertexShader:BV+`attribute vec3 col;attribute float flag;varying vec3 vC,vN,vLP,vLN;varying float vF;
- void main(){float v=uGV[int(gid+.5)];vec3 wp=anchor+frame(position,anchor)*min(uScale,mr)*v;vN=frame(normal,anchor);vLP=position;vLN=normal;vC=col;vF=flag;gl_Position=projectionMatrix*viewMatrix*vec4(wp,1.);}`,
+ void main(){float v=gv(gid);vec3 wp=anchor+frame(position,anchor)*min(uScale,mr)*v;vN=frame(normal,anchor);vLP=position;vLN=normal;vC=col;vF=flag;gl_Position=projectionMatrix*viewMatrix*vec4(wp,1.);}`,
  fragmentShader:`uniform vec3 uSun;varying vec3 vC,vN,vLP,vLN;varying float vF;
  void main(){vec3 N=normalize(vN);vec3 c=vC;
   if(vF>.5&&vF<1.5&&abs(vLN.z)<.5&&vLP.z>.03){float hc=dot(vLP.xy,vec2(-vLN.y,vLN.x));float wx=step(.4,fract(hc*34.));float wy=step(.45,fract(vLP.z*34.));c=mix(c,vec3(.56,.66,.78),wx*wy*.6);}
@@ -489,13 +372,13 @@ const sGeo=new THREE.BufferGeometry();{const p=[],a=[],gi=[],uv=[],mr=[];SA.forE
   q.forEach(([x,y])=>{p.push(x*1.3,y*1.3,.004);a.push(ax,ay,az);gi.push(SG[i]);uv.push(x,y);mr.push(SMR[i]);});}
  sGeo.setAttribute('position',new THREE.Float32BufferAttribute(p,3));sGeo.setAttribute('anchor',new THREE.Float32BufferAttribute(a,3));sGeo.setAttribute('gid',new THREE.Float32BufferAttribute(gi,1));sGeo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));sGeo.setAttribute('mr',new THREE.Float32BufferAttribute(mr,1));}
 const sMesh=new THREE.Mesh(sGeo,new THREE.ShaderMaterial({uniforms:bU,transparent:true,depthWrite:false,
- vertexShader:BV+`varying vec2 vUv;void main(){vUv=uv;float v=uGV[int(gid+.5)];vec3 wp=anchor+frame(position,anchor)*min(uScale,mr)*v;gl_Position=projectionMatrix*viewMatrix*vec4(wp,1.);}`,
+ vertexShader:BV+`varying vec2 vUv;void main(){vUv=uv;float v=gv(gid);vec3 wp=anchor+frame(position,anchor)*min(uScale,mr)*v;gl_Position=projectionMatrix*viewMatrix*vec4(wp,1.);}`,
  fragmentShader:`varying vec2 vUv;void main(){float d=length(vUv);float a=smoothstep(1.,.2,d);vec3 c=mix(vec3(.93,.93,.9),vec3(.45,.5,.58),smoothstep(1.,0.,d)*.6);gl_FragColor=vec4(c,a*.45);}`}));
 sMesh.frustumCulled=false;sMesh.renderOrder=1;bMesh.renderOrder=2;scene.add(sMesh);
 let bFade=0;
 function updateBuildings(){const cd=camera.position.length();const tgt=started&&introT>=1?THREE.MathUtils.smoothstep(3.7-cd,0,.7):0;bFade+=(tgt-bFade)*.12;
  {const h=Math.max(cd-1,.03);bU.uScale.value=THREE.MathUtils.lerp(h<.12?.036:.05,.017,THREE.MathUtils.smoothstep(h,.25,1.5))*h*bFade;}
- groups.forEach((g,i)=>{const t=g.vis.length?1:0;g.bv=(g.bv||0)+(t-(g.bv||0))*.15;bU.uGV.value[i]=g.bv;});
+ groups.forEach((g,i)=>{const t=g.vis.length?1:0;g.bv=(g.bv||0)+(t-(g.bv||0))*.15;bU.uGV.value[i>>2].setComponent(i&3,g.bv);});
  bMesh.visible=sMesh.visible=bFade>.01;return bFade;}
 
 const tmp=new THREE.Vector3(),camDir=new THREE.Vector3();
@@ -537,6 +420,7 @@ function updateCards(){const W=innerWidth,H=innerHeight;const cd=camera.position
 
 // ================= PLACE LABELS =================
 const PL=[["津巴布韦","Zimbabwe",-18.91,29.93,0,3],["赞比亚","Zambia",-14.66,26.4,0,3],["也门","Yemen",15.33,45.87,0,3],["越南","Vietnam",21.72,105.39,0,2],["委内瑞拉","Venezuela",7.18,-64.6,0,3],["瓦努阿图","Vanuatu",-15.37,166.91,0,4],["乌兹别克斯坦","Uzbekistan",41.69,64.01,0,3],["乌拉圭","Uruguay",-32.96,-55.97,0,4],["美属萨摩亚","American Samoa",-14.33,-170.75,0,4],["美国","United States",39.54,-97.48,0,2],["南乔治亚和南桑威奇群岛","S. Geo. and the Is.",-55.68,-31.06,0,4],["皮特凯恩群岛","Pitcairn Is.",-24.36,-128.32,0,4],["英国","United Kingdom",54.4,-2.12,0,2],["阿拉伯联合酋长国","United Arab Emirates",23.47,54.55,0,4],["乌克兰","Ukraine",49.72,32.14,0,3],["乌干达","Uganda",1.97,32.95,0,3],["土库曼斯坦","Turkmenistan",39.86,58.68,0,4],["土耳其","Turkey",39.35,34.51,0,2],["突尼斯","Tunisia",33.69,9.01,0,3],["汤加","Tonga",-21.21,-175.16,0,4],["泰国","Thailand",15.46,101.07,0,3],["坦桑尼亚","Tanzania",-6.05,34.96,0,3],["塔吉克斯坦","Tajikistan",38.2,72.59,0,4],["叙利亚","Syria",35.01,38.28,0,3],["瑞士","Switzerland",46.72,7.46,0,4],["瑞典","Sweden",65.86,19.02,0,3],["斯威士兰","eSwatini",-26.53,31.47,0,4],["苏里南","Suriname",4.14,-55.91,0,4],["南苏丹","S. Sudan",7.23,30.39,0,3],["苏丹","Sudan",16.33,29.26,0,3],["斯里兰卡","Sri Lanka",7.58,80.7,0,3],["西班牙","Spain",40.09,-3.46,0,2],["大韩民国","South Korea",36.38,128.13,0,2],["南非","South Africa",-29.71,23.67,0,2],["所罗门群岛","Solomon Is.",-8.03,159.17,0,3],["塞拉利昂","Sierra Leone",8.62,-11.76,0,4],["塞内加尔","Senegal",15.14,-14.78,0,3],["沙特阿拉伯","Saudi Arabia",23.81,44.7,0,2],["萨摩亚","Samoa",-13.64,-172.44,0,4],["卢旺达","Rwanda",-1.9,30.1,0,3],["俄罗斯","Russia",58.25,44.69,0,2],["罗马尼亚","Romania",45.73,24.97,0,3],["葡萄牙","Portugal",39.61,-8.27,0,2],["波兰","Poland",51.99,19.49,0,3],["菲律宾","Philippines",11.2,122.47,0,2],["秘鲁","Peru",-12.98,-72.9,0,2],["巴拉圭","Paraguay",-21.67,-60.15,0,4],["巴布亚新几内亚","Papua New Guinea",-5.7,143.91,0,2],["巴拿马","Panama",8.72,-80.35,0,4],["巴基斯坦","Pakistan",29.33,68.55,0,2],["阿曼","Oman",22.12,57.34,0,4],["挪威","Norway",61.36,9.68,0,3],["朝鲜民主主义人民共和国","North Korea",39.89,126.44,0,3],["尼日利亚","Nigeria",9.44,7.5,0,2],["尼日尔","Niger",17.45,9.5,0,3],["新西兰","New Zealand",-39.76,172.79,0,2],["纽埃","Niue",-19.05,-169.86,0,4],["库克群岛","Cook Is.",-21.22,-159.79,0,4],["尼泊尔","Nepal",28.3,83.64,0,3],["纳米比亚","Namibia",-20.58,17.11,0,3],["莫桑比克","Mozambique",-13.94,37.84,0,3],["摩洛哥","Morocco",31.65,-7.19,0,3],["蒙古国","Mongolia",46.0,104.15,0,3],["墨西哥","Mexico",23.92,-102.29,0,2],["毛里塔尼亚","Mauritania",19.59,-9.74,0,3],["马里","Mali",18.69,-2.04,0,3],["马来西亚","Malaysia",2.53,113.84,0,3],["马达加斯加","Madagascar",-18.63,46.7,0,3],["利比亚","Libya",26.64,18.01,0,3],["利比里亚","Liberia",6.45,-9.46,0,4],["老挝","Laos",19.43,102.53,0,4],["吉尔吉斯斯坦","Kyrgyzstan",41.67,74.53,0,4],["肯尼亚","Kenya",0.55,37.91,0,2],["哈萨克斯坦","Kazakhstan",49.05,68.69,0,3],["约旦","Jordan",30.81,36.38,0,4],["日本","Japan",36.14,138.44,0,2],["牙买加","Jamaica",18.14,-77.32,0,4],["意大利","Italy",44.73,11.08,0,2],["以色列","Israel",30.91,34.85,0,4],["爱尔兰","Ireland",53.08,-7.8,0,3],["伊拉克","Iraq",33.09,43.26,0,3],["伊朗","Iran",32.17,54.93,0,2],["印度尼西亚","Indonesia",-0.95,101.89,0,2],["印度","India",22.69,79.36,0,2],["冰岛","Iceland",64.78,-18.67,0,3],["圭亚那","Guyana",5.12,-58.94,0,4],["几内亚","Guinea",10.62,-10.02,0,3],["危地马拉","Guatemala",14.98,-90.5,0,3],["希腊","Greece",39.49,21.73,0,3],["加纳","Ghana",7.72,-1.04,0,3],["德国","Germany",50.96,9.68,0,2],["加蓬","Gabon",-0.44,11.84,0,4],["法国","France",46.7,2.55,0,2],["圣皮埃尔和密克隆","St. Pierre and Miquelon",47.04,-56.33,0,4],["瓦利斯和富图纳","Wallis and Futuna Is.",-14.29,-178.14,0,4],["法属波利尼西亚","Fr. Polynesia",-17.63,-149.46,0,4],["新喀里多尼亚","New Caledonia",-21.06,165.08,0,3],["芬兰","Finland",63.25,27.28,0,3],["埃塞俄比亚","Ethiopia",8.03,39.09,0,2],["厄立特里亚","Eritrea",15.79,38.29,0,4],["赤道几内亚","Eq. Guinea",2.33,8.99,0,4],["埃及","Egypt",26.19,29.45,0,2],["厄瓜多尔","Ecuador",-1.26,-78.19,0,3],["格陵兰","Greenland",74.32,-39.34,0,3],["丹麦","Denmark",55.97,9.02,0,4],["古巴","Cuba",21.33,-77.98,0,3],["科特迪瓦","Côte d'Ivoire",7.49,-5.57,0,3],["刚果民主共和国","Dem. Rep. Congo",-1.86,23.46,0,2],["刚果共和国","Congo",0.14,15.9,0,4],["哥伦比亚","Colombia",3.37,-73.17,0,2],["中国","China",32.5,106.34,0,2],["澳门","Macao",22.13,113.56,0,4],["香港","Hong Kong",22.45,114.1,0,4],["智利","Chile",-38.15,-72.32,0,2],["乍得","Chad",15.14,18.65,0,3],["中非共和国","Central African Rep.",6.99,20.91,0,4],["佛得角","Cabo Verde",15.07,-23.64,0,4],["加拿大","Canada",60.32,-101.91,0,2],["喀麦隆","Cameroon",4.59,12.47,0,3],["柬埔寨","Cambodia",12.65,104.5,0,3],["缅甸","Myanmar",21.57,95.8,0,3],["布基纳法索","Burkina Faso",12.67,-1.36,0,3],["保加利亚","Bulgaria",42.51,25.16,0,4],["巴西","Brazil",-12.1,-49.56,0,2],["博茨瓦纳","Botswana",-22.1,24.18,0,4],["玻利维亚","Bolivia",-16.67,-64.59,0,3],["比利时","Belgium",50.79,4.8,0,2],["白俄罗斯","Belarus",53.82,28.42,0,4],["孟加拉国","Bangladesh",24.21,89.68,0,3],["巴林","Bahrain",26.06,50.55,0,4],["巴哈马","Bahamas",26.4,-77.15,0,4],["奥地利","Austria",47.52,14.13,0,4],["澳大利亚","Australia",-24.13,134.05,0,2],["阿根廷","Argentina",-33.5,-64.17,0,2],["安哥拉","Angola",-12.18,17.98,0,3],["阿尔及利亚","Algeria",27.4,2.81,0,3],["阿富汗","Afghanistan",34.16,66.5,0,3],["南极洲","Antarctica",-79.84,35.89,0,4],["新疆","Xinjiang",41.12,85.43,1,5],["西藏","Xizang",31.45,88.41,1,5],["内蒙古","Inner Mongolia",41.59,111.62,1,5],["甘肃","Gansu",38.74,100.73,1,5],["云南","Yunnan",24.46,101.66,1,5],["黑龙江","Heilongjiang",46.85,127.97,1,5],["吉林","Jilin",43.3,126.47,1,5],["辽宁","Liaoning",41.39,123.07,1,5],["广西","Guangxi",23.75,108.76,1,5],["华盛顿州","Washington",47.49,-120.36,1,5],["爱达荷州","Idaho",43.78,-114.13,1,5],["蒙大拿州","Montana",47.0,-110.04,1,5],["北达科他州","North Dakota",47.47,-100.3,1,5],["明尼苏达州","Minnesota",46.06,-93.36,1,5],["密歇根州","Michigan",43.43,-84.95,1,5],["俄亥俄州","Ohio",40.09,-82.67,1,5],["宾夕法尼亚州","Pennsylvania",40.86,-77.61,1,5],["纽约州","New York",43.2,-75.32,1,5],["佛蒙特州","Vermont",44.09,-72.73,1,5],["新罕布什尔州","New Hampshire",43.6,-71.63,1,5],["缅因州","Maine",45.15,-69.2,1,5],["亚利桑那州","Arizona",34.3,-111.94,1,5],["加利福尼亚州","California",36.75,-119.59,1,5],["新墨西哥州","New Mexico",34.5,-106.02,1,5],["得克萨斯州","Texas",31.13,-98.76,1,5],["阿拉斯加州","Alaska",65.36,-151.6,1,5],["广东","Guangdong",23.79,113.72,1,5],["海南","Hainan",19.19,109.83,1,5],["福建","Fujian",26.41,118.18,1,5],["路易斯安那州","Louisiana",30.53,-92.0,1,5],["密西西比州","Mississippi",32.87,-89.72,1,5],["亚拉巴马州","Alabama",32.86,-86.72,1,5],["佛罗里达州","Florida",28.16,-81.62,1,5],["佐治亚州","Georgia",32.85,-83.41,1,5],["南卡罗来纳州","South Carolina",33.86,-80.65,1,5],["北卡罗来纳州","North Carolina",35.62,-78.87,1,5],["弗吉尼亚州","Virginia",37.74,-78.24,1,5],["华盛顿哥伦比亚特区","District of Columbia",38.89,-77.01,1,5],["马里兰州","Maryland",39.39,-77.05,1,5],["特拉华州","Delaware",38.87,-75.41,1,5],["新泽西州","New Jersey",40.04,-74.47,1,5],["康涅狄格州","Connecticut",41.65,-72.76,1,5],["罗得岛州","Rhode Island",41.62,-71.51,1,5],["马萨诸塞州","Massachusetts",42.37,-72.0,1,5],["浙江","Zhejiang",29.11,119.97,1,5],["上海","Shanghai",31.09,121.41,1,5],["江苏","Jiangsu",32.98,119.94,1,5],["俄勒冈州","Oregon",43.83,-120.39,1,5],["山东","Shandong",36.33,118.11,1,5],["河北","Hebei",38.52,115.31,1,5],["天津","Tianjin",39.37,117.35,1,5],["夏威夷州","Hawaii",21.49,-158.0,1,5],["西沙群岛","Paracel Islands",15.78,111.2,1,5],["犹他州","Utah",39.5,-111.54,1,5],["怀俄明州","Wyoming",43.0,-107.55,1,5],["内华达州","Nevada",39.43,-117.02,1,5],["科罗拉多州","Colorado",39.0,-105.54,1,5],["南达科他州","South Dakota",44.47,-100.25,1,5],["內布拉斯加州","Nebraska",41.5,-99.69,1,5],["堪萨斯州","Kansas",38.5,-98.33,1,5],["俄克拉荷马州","Oklahoma",35.45,-97.13,1,5],["艾奥瓦州","Iowa",42.04,-93.39,1,5],["密苏里州","Missouri",38.55,-92.45,1,5],["北京","Beijing",39.95,116.39,1,5],["四川","Sichuan",30.54,102.38,1,5],["重庆","Chongqing",30.02,107.73,1,5],["贵州","Guizhou",26.8,106.56,1,5],["湖南","Hunan",27.67,111.71,1,5],["宁夏","Ningxia",37.18,106.04,1,5],["陕西","Shaanxi",33.77,108.36,1,5],["青海","Qinghai",35.27,96.24,1,5],["山西","Shanxi",37.76,112.39,1,5],["江西","Jiangxi",27.64,116.02,1,5],["河南","Henan",33.91,113.48,1,5],["湖北","Hubei",30.99,112.26,1,5],["安徽","Anhui",31.95,117.25,1,5],["威斯康星州","Wisconsin",44.37,-89.58,1,5],["伊利诺伊州","Illinois",39.95,-89.2,1,5],["肯塔基州","Kentucky",37.4,-85.57,1,5],["阿肯色州","Arkansas",34.76,-92.14,1,5],["田纳西州","Tennessee",35.75,-86.34,1,5],["西維吉尼亞州","West Virginia",38.64,-80.71,1,5],["印第安纳州","Indiana",39.89,-86.14,1,5],["台湾","Taiwan",23.7,121.0,1,5],["旧金山","San Francisco",37.77,-122.42,2,6],["圣何塞","San Jose",37.34,-121.89,2,6],["奥克兰","Oakland",37.8,-122.27,2,6],["帕洛阿尔托","Palo Alto",37.44,-122.14,2,6],["弗里蒙特","Fremont",37.55,-121.99,2,6],["洛杉矶","Los Angeles",34.05,-118.24,2,6],["圣迭戈","San Diego",32.72,-117.16,2,6],["西雅图","Seattle",47.61,-122.33,2,6],["波特兰","Portland",45.52,-122.68,2,6],["凤凰城","Phoenix",33.45,-112.07,2,6],["丹佛","Denver",39.74,-104.99,2,6],["盐湖城","Salt Lake City",40.76,-111.89,2,6],["达拉斯","Dallas",32.78,-96.8,2,6],["休斯敦","Houston",29.76,-95.37,2,6],["奥斯汀","Austin",30.27,-97.74,2,6],["芝加哥","Chicago",41.88,-87.63,2,6],["底特律","Detroit",42.33,-83.05,2,6],["纽约","New York",40.71,-74.01,2,6],["波士顿","Boston",42.36,-71.06,2,6],["华盛顿","Washington",38.91,-77.04,2,6],["费城","Philadelphia",39.95,-75.17,2,6],["匹兹堡","Pittsburgh",40.44,-80.0,2,6],["亚特兰大","Atlanta",33.75,-84.39,2,6],["迈阿密","Miami",25.76,-80.19,2,6],["哥伦布","Columbus",39.96,-83.0,2,6],["明尼阿波利斯","Minneapolis",44.98,-93.27,2,6],["博伊西","Boise",43.62,-116.2,2,6],["阿尔伯克基","Albuquerque",35.08,-106.65,2,6],["北京","Beijing",39.9,116.4,2,6],["上海","Shanghai",31.23,121.47,2,6],["深圳","Shenzhen",22.54,114.06,2,6],["广州","Guangzhou",23.13,113.26,2,6],["杭州","Hangzhou",30.27,120.15,2,6],["合肥","Hefei",31.82,117.23,2,6],["武汉","Wuhan",30.59,114.31,2,6],["天津","Tianjin",39.13,117.2,2,6],["济南","Jinan",36.65,117.0,2,6],["成都","Chengdu",30.57,104.07,2,6],["重庆","Chongqing",29.56,106.55,2,6],["西安","Xi'an",34.34,108.94,2,6],["南京","Nanjing",32.06,118.8,2,6],["贵阳","Guiyang",26.65,106.63,2,6],["中卫","Zhongwei",37.51,105.19,2,6],["乌兰察布","Ulanqab",41.0,113.13,2,6],["香港","Hong Kong",22.32,114.17,2,6],["苏州","Suzhou",31.3,120.62,2,6]];
+[['新竹','Hsinchu',24.80,120.97],['台中','Taichung',24.15,120.67],['台南','Tainan',22.99,120.21],['高雄','Kaohsiung',22.63,120.30],['台北','Taipei',25.03,121.56],['槟城','Penang',5.41,100.33],['吉隆坡','Kuala Lumpur',3.14,101.69],['新山','Johor Bahru',1.49,103.76],['新加坡','Singapore',1.29,103.85],['曼谷','Bangkok',13.75,100.50],['春武里','Chonburi',13.36,100.98],['河内','Hanoi',21.03,105.85],['胡志明市','Ho Chi Minh City',10.82,106.63],['马尼拉','Manila',14.60,120.98],['雅加达','Jakarta',-6.21,106.85],['金奈','Chennai',13.08,80.27],['艾哈迈达巴德','Ahmedabad',23.02,72.57],['班加罗尔','Bengaluru',12.97,77.59],['首尔','Seoul',37.57,126.98],['东京','Tokyo',35.68,139.69],['大阪','Osaka',34.69,135.50],['熊本','Kumamoto',32.80,130.71],['札幌','Sapporo',43.06,141.35],['埃因霍温','Eindhoven',51.44,5.47],['阿姆斯特丹','Amsterdam',52.37,4.90],['伦敦','London',51.51,-0.13],['巴黎','Paris',48.86,2.35],['德累斯顿','Dresden',51.05,13.74],['慕尼黑','Munich',48.14,11.58],['阿布扎比','Abu Dhabi',24.45,54.38],['利雅得','Riyadh',24.71,46.68],['特拉维夫','Tel Aviv',32.09,34.78],['苏州','Suzhou',31.30,120.62],['无锡','Wuxi',31.49,120.31],['宁波','Ningbo',29.87,121.55],['东莞','Dongguan',23.02,113.75],['惠州','Huizhou',23.11,114.42],['昆山','Kunshan',31.38,120.98],['孟菲斯','Memphis',35.15,-90.05]].forEach(([a,b,c,d])=>PL.push([a,b,c,d,2,6]));
 const plRoot=document.getElementById('plbl');
 const places=PL.map(([zh,en,lat,lon,tier,rank])=>{const el=document.createElement('div');el.className='pl t'+tier;el.innerHTML=`<div class="z">${zh}</div><div class="e">${en}</div>`;el.style.display='none';plRoot.appendChild(el);
  return {zh,en,tier,rank,el,n:ll2v(lat,lon,1),pos:ll2v(lat,lon,R*1.003),w:0,h:0,op:0};});
