@@ -283,15 +283,15 @@ document.getElementById('segClr').onclick=()=>{fSeg.clear();document.querySelect
 const rotBtn=document.getElementById('rotBtn');rotBtn.onclick=()=>{if(!controls.autoRotate&&controls.target.lengthSq()>0){flyTo('globe');setTimeout(()=>{controls.autoRotate=true;rotBtn.classList.add('on');},2300);return;}controls.autoRotate=!controls.autoRotate;rotBtn.classList.toggle('on',controls.autoRotate);};
 const arcBtn=document.getElementById('arcBtn');arcBtn.onclick=()=>{showArcs=!showArcs;arcBtn.classList.toggle('on',showArcs);};
 
-const PRESETS={globe:[28,85,4.2],us:[38.5,-97,2.7],bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],cn:[29.5,113.5,.95,38],yrd:[30.6,120.3,.16,45],prd:[22.6,113.9,.09,45],tw:[23.6,120.8,.13,40],sea:[8,104,.75,30],jk:[34.5,133,.42,38],eu:[49,7,.55,38],me:[27,47,.9,30]};
+const PRESETS={globe:[28,85,3.6],us:[38.5,-97,2.7],bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],cn:[29.5,113.5,.95,38],yrd:[30.6,120.3,.16,45],prd:[22.6,113.9,.09,45],tw:[23.6,120.8,.13,40],sea:[8,104,.75,30],jk:[34.5,133,.42,38],eu:[49,7,.55,38],me:[27,47,.9,30]};
 let fly=null;
-function flyTo(k,latlon){if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));const [lat,lon,d,tilt=0]=latlon||PRESETS[k];const from=camera.position.clone();let to,tgt;
+function flyTo(k,latlon){if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));let [lat,lon,d,tilt=0]=latlon||PRESETS[k];if(innerWidth<innerHeight)d=tilt?d*1.5:1+(d-1)*1.9;const from=camera.position.clone();let to,tgt;
  if(tilt){tgt=ll2v(lat,lon,R);const n=tgt.clone().normalize();const east=new THREE.Vector3(0,1,0).cross(n).normalize();const north=n.clone().cross(east);
   const tr=tilt*Math.PI/180;to=tgt.clone().addScaledVector(n,Math.cos(tr)*d).addScaledVector(north,-Math.sin(tr)*d);}
  else{to=ll2v(lat,lon,d);tgt=new THREE.Vector3();}
  controls.minDistance=.02;controls.maxDistance=12;
  fly={from,to,t:0,dur:2.2,tf:controls.target.clone(),tt:tgt,surf:!!tilt};controls.autoRotate=false;rotBtn.classList.remove('on');}
-document.querySelectorAll('#flyBtns button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.remove('on'));b.classList.add('on');flyTo(b.dataset.f);});
+document.querySelectorAll('#flyBtns button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.remove('on'));b.classList.add('on');flyTo(b.dataset.f);const k=story.findIndex(x=>x[3]===b.dataset.f);if(k>=0){stepI=k;storyEl.classList.remove('mini');renderStep(0);}else{storyEl.classList.add('mini');renderStep(0);storyEl.querySelector('h2').innerHTML=`<i style="background:var(--ink)"></i>${b.textContent} · 视角`;storyEl.querySelector('.st span').textContent='当前视角';}});//});
 const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 function slerpCam(f,t){const a=f.from.length(),b=f.to.length();const da=f.from.clone().normalize(),db=f.to.clone().normalize();
  const ang=da.angleTo(db);let dir;if(ang<1e-4)dir=db;else{const s=Math.sin(ang);dir=da.multiplyScalar(Math.sin((1-t)*ang)/s).add(db.multiplyScalar(Math.sin(t*ang)/s));}
@@ -362,7 +362,7 @@ function buildCards(){groups.forEach(g=>{g.vis=g.rg?markers.filter(o=>o.cty===g.
  if(g.rg){const R2=REGEN[g.rg];const sc={};g.vis.forEach(o=>sc[o.seg]=(sc[o.seg]||0)+1);const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,4);
   g.el.innerHTML=`<div class="h">${R2[0]}<small>${g.vis.length} 处</small></div><div class="e">${R2[1]}</div><div class="bar">${['up','mid','down'].map(l=>cnt[l]?`<span style="flex:${cnt[l]};background:${INK[l]}"></span>`:'').join('')}</div><ul>${top.map(([k,n])=>`<li><i style="background:${INK[SEG[k][1]]}"></i>${SEG[k][0]} <span style="color:var(--ink3);margin-left:auto;padding-left:8px">${n}</span></li>`).join('')}</ul>`;}
  else if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<div class="h">${o.cn}</div><div class="e">${o.en}</div><span class="sg" style="background:${ink(o)}">${o.role}</span>`;}
- else{const nm=g.city.replace(/^(加州|华盛顿|得州|纽约州|广东|浙江|安徽|湖北|江苏|四川|台湾|马来西亚|泰国|越南|新加坡|日本|韩国|德国|荷兰|英国|法国|阿联酋)\s*/,'');
+ else{const nm=g.city.split(' ').slice(1).join(' ')||g.city;
   g.el.innerHTML=`<div class="h">${nm}<small>${g.vis.length} 家</small></div><div class="e">${CITY_EN[g.city]||''}</div><ul>${g.vis.slice(0,5).map(li).join('')}${g.vis.length>5?`<li class="more">+ ${g.vis.length-5} 家</li>`:''}</ul>`;}
  g.el.style.transform='none';g.el.style.display='block';g.el.style.visibility='hidden';g.w=g.el.offsetWidth;g.h=g.el.offsetHeight;g.el.style.visibility='';g.el.style.display='none';g.init=false;});}
 const _applyFilter=applyFilter;applyFilter=function(){_applyFilter();buildCards();};
@@ -442,34 +442,35 @@ const sMesh=new THREE.Mesh(sGeo,new THREE.ShaderMaterial({uniforms:bU,transparen
  vertexShader:BV+`varying vec2 vUv;void main(){vUv=uv;float v=gv(gid);vec3 wp=anchor+frame(position,anchor)*min(uScale,mr)*v;gl_Position=projectionMatrix*viewMatrix*vec4(wp,1.);}`,
  fragmentShader:`varying vec2 vUv;void main(){float d=length(vUv);float a=smoothstep(1.,.2,d);vec3 c=mix(vec3(.93,.93,.9),vec3(.45,.5,.58),smoothstep(1.,0.,d)*.6);gl_FragColor=vec4(c,a*.45);}`}));
 sMesh.frustumCulled=false;sMesh.renderOrder=1;bMesh.renderOrder=2;scene.add(sMesh);
-addRegionGroups();
-let bFade=0;
+let bFade=0;addRegionGroups();
 function updateBuildings(){const cd=camera.position.length();const tgt=started&&introT>=1?THREE.MathUtils.smoothstep(3.7-cd,0,.7):0;bFade+=(tgt-bFade)*.12;
  {const h=Math.max(cd-1,.03);bU.uScale.value=THREE.MathUtils.lerp(h<.12?.036:.05,.017,THREE.MathUtils.smoothstep(h,.25,1.5))*h*bFade;}
  groups.forEach((g,i)=>{const t=g.vis.length?1:0;g.bv=(g.bv||0)+(t-(g.bv||0))*.15;bU.uGV.value[i>>2].setComponent(i&3,g.bv);});
  bMesh.visible=sMesh.visible=bFade>.01;return bFade;}
 
 const tmp=new THREE.Vector3(),camDir=new THREE.Vector3();
-function updateCards(){const W=innerWidth,H=innerHeight;const cd=camera.position.length();camDir.copy(camera.position).normalize();
- const sc=THREE.MathUtils.clamp(2.3/cd,.72,1);
+let ZONES=[];function inZone(x,y){return ZONES.some(z=>x>z.left-6&&x<z.right+6&&y>z.top-6&&y<z.bottom+6);}
+function updateCards(){ZONES=['title','flyBtns','dock','story','info','pop'].map(id=>document.getElementById(id)).filter(e=>e&&getComputedStyle(e).opacity>.05&&!(e.id==='info'&&!e.classList.contains('open'))&&!(e.id==='pop'&&!e.classList.contains('open'))).map(e=>e.getBoundingClientRect());const W=innerWidth,H=innerHeight;const cd=camera.position.length();camDir.copy(camera.position).normalize();
+ const sc=THREE.MathUtils.clamp(2.3/cd,.9,1);
  tmp.set(0,0,0).project(camera);const cx=(tmp.x+1)/2*W,cy=(1-tmp.y)/2*H;
  // horizon: point visible if dot(n,camPos) > R
  const act=[];const shown=started&&introT>=1;const wide=cd>3.1;
  groups.forEach(g=>{const f=g.n.dot(camera.position)/R;const face=(f-1)/(cd-1);g.face=face; // 1 at center
   if(!shown||!g.vis.length||face<.06||(!!g.rg)!==wide){g.act=false;return;}
-  tmp.copy(g.pos).project(camera);g.dx=(tmp.x+1)/2*W;g.dy=(1-tmp.y)/2*H;if(g.dx<0||g.dx>W||g.dy<0||g.dy>H){g.act=false;return;}
+  tmp.copy(g.pos).project(camera);g.dx=(tmp.x+1)/2*W;g.dy=(1-tmp.y)/2*H;if(g.dx<0||g.dx>W||g.dy<H*.07||g.dy>H*.96||inZone(g.dx,g.dy)){g.act=false;return;}
   let ox=g.dx-cx,oy=g.dy-cy;const l=Math.hypot(ox,oy)||1;ox/=l;oy/=l;if(l<4){ox=.6;oy=-.8;}
   if(cd<1.6){const k=THREE.MathUtils.smoothstep(1.6-cd,0,.3);const sx=Math.sign(g.dx-W/2)||1;const vy=(g.dy-H/2)/H*.8;let nx=THREE.MathUtils.lerp(ox,sx,k),ny=THREE.MathUtils.lerp(oy,vy,k);const nl=Math.hypot(nx,ny)||1;ox=nx/nl;oy=ny/nl;}
   const L=28+22*sc+(cd<1.6?60:0),w=g.w*sc,h=g.h*sc;g.sw=w;g.sh=h;
   g.tx=g.dx+ox*(L+w/2*Math.abs(ox))-0;g.ty=g.dy+oy*(L+h/2*Math.abs(oy));
   if(!g.init){g.x=g.tx;g.y=g.ty;g.init=true;}g.act=true;act.push(g);});
  act.sort((a,b)=>b.vis.length-a.vis.length||b.face-a.face);
+ {const cap=W<760?5:(cd<1.25?16:11);const keep=act.filter(g=>g.rg||g.vis.length>1||cd<2.0).slice(0,cap);act.forEach(g=>{if(!keep.includes(g))g.act=false;});act.length=0;act.push(...keep);}
  for(let it=0;it<6;it++){
   act.forEach(g=>{g.x+=(g.tx-g.x)*.12;g.y+=(g.ty-g.y)*.12;});
   for(let i=0;i<act.length;i++)for(let j=i+1;j<act.length;j++){const a=act[i],b=act[j];
    const ox=(a.sw+b.sw)/2+6-Math.abs(a.x-b.x),oy=(a.sh+b.sh)/2+5-Math.abs(a.y-b.y);
    if(ox>0&&oy>0){if(ox<oy){const s=(a.x<b.x?-1:1)*ox/2;a.x+=s*.35;b.x-=s*.65;}else{const s=(a.y<b.y?-1:1)*oy/2;a.y+=s*.35;b.y-=s*.65;}}}
-  const xl=8,xr=W-8;act.forEach(g=>{g.x=THREE.MathUtils.clamp(g.x,g.sw/2+xl,xr-g.sw/2);g.y=THREE.MathUtils.clamp(g.y,g.sh/2+6,H-g.sh/2-6);});}
+  const xl=8,xr=W-8;act.forEach(g=>{for(const z of ZONES){const ox=Math.min(g.x+g.sw/2,z.right+8)-Math.max(g.x-g.sw/2,z.left-8),oy=Math.min(g.y+g.sh/2,z.bottom+8)-Math.max(g.y-g.sh/2,z.top-8);if(ox>0&&oy>0){if(ox<oy)g.x+=(g.x<(z.left+z.right)/2?-ox:ox);else g.y+=(g.y<(z.top+z.bottom)/2?-oy:oy);}}g.x=THREE.MathUtils.clamp(g.x,g.sw/2+xl,xr-g.sw/2);g.y=THREE.MathUtils.clamp(g.y,g.sh/2+6,H-g.sh/2-6);});}
  // greedy declutter: drop cards still overlapping a higher-priority one, or with very long leaders
  let nK=0;const placed=['title','flyBtns','dock','story','info'].map(id=>{const e=document.getElementById(id);if(!e||(id==='info'&&!e.classList.contains('open')))return null;const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,sw:r.width+40,sh:r.height+32};}).filter(Boolean);act.forEach(g=>{let ok=Math.hypot(g.x-g.dx,g.y-g.dy)<260*sc+g.sw/2;
   if(ok)for(const p of placed){const ox=(p.sw+g.sw)/2-Math.abs(p.x-g.x),oy=(p.sh+g.sh)/2-Math.abs(p.y-g.y);if(ox>2&&oy>2){ok=false;break;}}
@@ -501,7 +502,7 @@ function updatePlaces(cardRects){if(!plMeasured)measurePlaces();const W=innerWid
  places.forEach(p=>{let ok=false,x=0,y=0;
   if(started&&introT>=1&&tierOn[p.tier]&&!(p.tier===0&&p.rank>(cd>3.2?2:4))){const face=(p.n.dot(camera.position)-1)/(cd-1);
    if(face>.12){tmp.copy(p.pos).project(camera);x=(tmp.x+1)/2*W;y=(1-tmp.y)/2*H;
-    if(x>(W>1100?280:0)&&x<(W>1100?W-330:W)&&y>0&&y<H){ok=true;const r={x,y,w:p.w+6,h:p.h+2};
+    if(x>0&&x<W&&y>0&&y<H&&!inZone(x,y)){ok=true;const r={x,y,w:p.w+6,h:p.h+2};
      for(const q of taken){if(Math.abs(q.x-r.x)*2<q.w+r.w&&Math.abs(q.y-r.y)*2<q.h+r.h){ok=false;break;}}
      if(ok)taken.push(r);p.face=face;}}}
   p.op+=((ok?Math.min(1,(p.face-.12)*5):0)-p.op)*.2;
@@ -512,7 +513,7 @@ function updatePlaces(cardRects){if(!plMeasured)measurePlaces();const W=innerWid
 // ================= LOOP =================
 const clock=new THREE.Clock();let introT=0,started=false;
 mgr.onLoad=()=>{document.getElementById('loader').style.opacity=0;setTimeout(()=>document.getElementById('loader').remove(),1300);started=true;document.body.classList.add('show');applyFilter();};
-const introFrom=new THREE.Vector3(0,0,14),introTo=ll2v(32,-60,4.2);
+const introFrom=new THREE.Vector3(0,0,14),introTo=ll2v(32,-60,3.6);
 function tick(){const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTime;earthU.uTime.value=t;
  if(started&&introT<1){introT=Math.min(1,introT+dt/3.5);const e=ease(introT);const p=introFrom.clone().lerp(introTo,e);
   p.applyAxisAngle(new THREE.Vector3(0,1,0),(1-e)*2.2);camera.position.copy(p);if(introT>=1){controls.autoRotate=true;}}
@@ -524,11 +525,11 @@ function tick(){const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTim
   o.pillar.material.uniforms.uHi.value+=(hi-o.pillar.material.uniforms.uHi.value)*.2;o.ring.material.uniforms.uHi.value=o.pillar.material.uniforms.uHi.value;
   const s=Math.max(o.vis,.0001);o.group.scale.set(s*sc,s*sc,s*(.6+.4*sc));o.group.visible=o.vis>.01;o.pillar.visible=false;o.ring.visible=o.head.visible=bFade<.35;
   o.head.scale.setScalar(.0042*(1+hi*.8));});
- arcs.forEach(a=>{const tg=showArcs&&visible(a.A)&&visible(a.B)&&introT>=1?1:0;a.op+=(tg-a.op)*Math.min(1,dt*3);a.m.uniforms.uOp.value=a.op*THREE.MathUtils.smoothstep(camera.position.length(),1.12,1.6);a.mesh.visible=a.op>.01;});
+ arcs.forEach(a=>{const tg=showArcs&&visible(a.A)&&visible(a.B)&&introT>=1?1:0;a.op+=(tg-a.op)*Math.min(1,dt*3);a.m.uniforms.uOp.value=a.op*(.25+.75*THREE.MathUtils.smoothstep(camera.position.length(),1.3,2.6))*THREE.MathUtils.smoothstep(camera.position.length(),1.08,1.3)*(camera.position.length()>3?.5:.75);a.mesh.visible=a.op>.01;});
  controls.update();{const nr=THREE.MathUtils.clamp((camera.position.length()-1)*.25,.0004,.05);if(Math.abs(nr-camera.near)>1e-5){camera.near=nr;camera.updateProjectionMatrix();}}
  hovered=started&&!fly?pick():null;renderer.domElement.style.cursor=hovered?'pointer':'grab';
  if(hovered){label.style.opacity=1;label.style.left=mx+'px';label.style.top=my+'px';label.innerHTML=`<b style="color:#${hovered.color.getHexString()}">●</b> ${hovered.cn} <span style="opacity:.55">· ${hovered.city}</span>`;}else label.style.opacity=0;
- updateBuildings();updateCards();renderer.render(scene,camera);requestAnimationFrame(tick);}
+ atmo.visible=camera.position.length()>1.2;updateBuildings();updateCards();renderer.render(scene,camera);requestAnimationFrame(tick);}
 tick();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 window.__flyTo=flyTo;window.__setLayer=v=>document.querySelector(`#layerBtns button[data-l="${v}"]`).click();window.__ctl=controls;window.__setCty=v=>document.querySelector(`#ctyBtns button[data-c="${v}"]`).click();
