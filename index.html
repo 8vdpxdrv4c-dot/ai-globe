@@ -3,106 +3,154 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:,"><title>全球AI产业链 · 三维地球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--gold:#ffc94a;--teal:#2ff3e0;--copper:#ff8a4c;--red:#ff3b5c;--glass:rgba(10,18,34,.78);--bd:rgba(150,200,255,.18)}
+:root{--paper:#F5F2EB;--sky:#E3EBF1;--ink:#14233A;--ink2:#4A5568;--ink3:#8A94A3;--rule:rgba(20,35,58,.12);--surface:rgba(255,255,255,.94);
+--up:#B8860B;--mid:#0F8C86;--down:#C2602F;--sh:0 1px 2px rgba(20,35,58,.06),0 8px 24px rgba(20,35,58,.08);--ease:cubic-bezier(.2,.8,.2,1);
+--serif:"Noto Serif SC","Songti SC","STSong",serif;--sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;--m:28px}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#01030a;color:#dfe9ff;font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif}
-canvas{display:block}
-.glass{background:var(--glass);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid var(--bd);border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
-#title{position:fixed;top:22px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none;opacity:0;transition:opacity 2s}
-#title h1{font-size:28px;letter-spacing:8px;font-weight:300;background:linear-gradient(90deg,var(--gold),var(--teal),var(--copper),var(--red));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 30px rgba(47,243,224,.15)}
-#title p{font-size:12px;letter-spacing:5px;opacity:.6;margin-top:6px}
-#ctrl{position:fixed;left:20px;top:20px;bottom:20px;overflow-y:auto;width:262px;padding:16px;opacity:0;transform:translateX(-30px);transition:all 1.2s .5s}
-.show #ctrl,.show #story,.show #legend{opacity:1;transform:none}.show #title{opacity:1}
-.sec{font-size:11px;letter-spacing:3px;opacity:.55;margin:12px 0 7px}.sec:first-child{margin-top:0}
-.btns{display:flex;flex-wrap:wrap;gap:6px}
-button{font:inherit;font-size:11.5px;color:#cfe0ff;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 11px;cursor:pointer;transition:all .25s}
-button:hover{background:rgba(255,255,255,.14)}
-button.on{background:rgba(47,243,224,.18);border-color:var(--teal);color:#fff;box-shadow:0 0 14px rgba(47,243,224,.35)}
-button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
-.sb{padding:3px 8px;font-size:11px}.sb .bd{display:inline-block;min-width:14px;padding:0 3px;border-radius:4px;font-size:9.5px;margin-right:4px;color:#0b1220;font-weight:700}
-.cl .sg{display:inline-block;font-size:9px;padding:0 4px;border-radius:3px;color:#fff;margin-right:4px;vertical-align:1px}
-#stats{font-size:12px;opacity:.75;margin-top:12px;line-height:1.7}
-#stats b{color:var(--teal);font-size:16px}
-#story{position:fixed;right:20px;top:20px;bottom:20px;width:300px;padding:18px;overflow-y:auto;opacity:0;transform:translateX(30px);transition:all 1.2s .8s}
-#story::-webkit-scrollbar{width:4px}#story::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15)}
-#story h2{font-size:15px;font-weight:500;margin:4px 0 8px;display:flex;align-items:center;gap:8px}
-#story h2 i{width:4px;height:16px;border-radius:2px}
-#story p{font-size:12.5px;line-height:1.75;opacity:.82;margin-bottom:14px}
-#story .card{padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:12px;cursor:pointer;transition:all .3s}
-#story .card:hover{background:rgba(255,255,255,.07);transform:translateX(-3px)}
-#info{position:fixed;left:20px;bottom:20px;width:330px;padding:18px;transform:translateY(130%);transition:transform .6s cubic-bezier(.2,.9,.2,1)}
+html,body{width:100%;height:100%;overflow:hidden;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;
+ background:radial-gradient(120% 90% at 50% 45%,#FBFAF6 0%,var(--paper) 45%,var(--sky) 100%)}
+canvas{display:block;position:fixed;inset:0}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:14px;box-shadow:var(--sh);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.fade{opacity:0;transform:translateY(8px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.show .fade{opacity:1;transform:none}
+/* title */
+#title{position:fixed;left:var(--m);top:24px;z-index:3;pointer-events:none;max-width:420px}
+#title .k{font-size:10px;letter-spacing:.16em;color:var(--ink3);text-transform:uppercase;font-weight:500}
+#title h1{font-family:var(--serif);font-weight:700;font-size:34px;line-height:1.18;letter-spacing:.02em;margin:6px 0 6px}
+#title h1 em{font-style:normal;color:var(--up)}
+#title p{font-size:13px;color:var(--ink2);line-height:1.6}
+#title .nums{display:flex;gap:22px;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+#title .nums div{font-size:11px;color:var(--ink3)}#title .nums b{display:block;font-family:var(--serif);font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums;font-weight:700}
+/* region tabs */
+#flyBtns{position:fixed;right:var(--m);top:24px;z-index:3;display:flex;padding:3px;gap:2px;border-radius:10px;max-width:calc(100vw - 480px);overflow-x:auto;scrollbar-width:none}
+#flyBtns::-webkit-scrollbar{display:none}
+#flyBtns button{font-size:12.5px;padding:6px 11px;border-radius:7px;color:var(--ink2);white-space:nowrap;transition:all .24s var(--ease)}
+#flyBtns button:hover{color:var(--ink);background:rgba(20,35,58,.05)}
+#flyBtns button.on{background:var(--ink);color:#fff}
+/* legend + dock */
+#dock{position:fixed;left:var(--m);bottom:24px;z-index:3;display:flex;gap:8px;align-items:center}
+#layerBtns{display:flex;padding:4px;gap:2px;border-radius:10px}
+#layerBtns button{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:6px 11px;border-radius:7px;color:var(--ink2);transition:all .24s var(--ease)}
+#layerBtns button i{width:8px;height:8px;border-radius:50%}
+#layerBtns button small{font-size:11px;color:var(--ink3);font-variant-numeric:tabular-nums}
+#layerBtns button:hover{background:rgba(20,35,58,.05)}
+#layerBtns button.on{background:rgba(20,35,58,.07);color:var(--ink);font-weight:500}
+#layerBtns.dim button:not(.on){opacity:.45}
+#filterBtn{display:flex;align-items:center;gap:7px;font-size:12.5px;padding:10px 14px;border-radius:10px;color:var(--ink)}
+#filterBtn svg{width:14px;height:14px}
+#filterBtn .badge{min-width:16px;height:16px;border-radius:8px;background:var(--ink);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center;padding:0 4px}
+#pop{position:fixed;left:var(--m);bottom:78px;z-index:6;width:380px;max-height:calc(100vh - 200px);overflow-y:auto;padding:16px 16px 12px;opacity:0;transform:translateY(8px) scale(.98);pointer-events:none;transition:all .24s var(--ease)}
+#pop.open{opacity:1;transform:none;pointer-events:auto}
+#pop h4{font-size:10px;letter-spacing:.14em;color:var(--ink3);font-weight:500;margin:14px 0 8px;display:flex;justify-content:space-between;text-transform:uppercase}
+#pop h4:first-child{margin-top:0}#pop h4 span{cursor:pointer;color:var(--mid);letter-spacing:0;text-transform:none}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:4px 9px;border-radius:6px;border:1px solid var(--rule);color:var(--ink2);background:#fff;transition:all .2s var(--ease)}
+.chip i{width:6px;height:6px;border-radius:50%}
+.chip:hover{border-color:rgba(20,35,58,.3)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.sw{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--ink2);padding:6px 0}
+.sw button{width:32px;height:18px;border-radius:9px;background:#d5d9df;position:relative;transition:background .2s}
+.sw button::after{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .2s var(--ease)}
+.sw button.on{background:var(--ink)}.sw button.on::after{transform:translateX(14px)}
+#pop .src{font-size:10.5px;color:var(--ink3);line-height:1.6;margin-top:12px;padding-top:10px;border-top:1px solid var(--rule)}
+/* stepper */
+#story{position:fixed;right:var(--m);bottom:24px;z-index:3;width:340px;padding:16px 18px 14px}
+#story .st{font-size:10px;letter-spacing:.14em;color:var(--ink3);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+#story h2{font-family:var(--serif);font-size:18px;font-weight:700;margin:8px 0 6px;display:flex;align-items:center;gap:8px}
+#story h2 i{width:3px;height:16px;border-radius:2px}
+#story p{font-size:12.5px;line-height:1.7;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#story .nav{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+#story .dots{display:flex;gap:5px}#story .dots i{width:6px;height:6px;border-radius:3px;background:#d5d9df;transition:all .24s var(--ease);cursor:pointer}#story .dots i.on{width:18px;background:var(--ink)}
+#story .arrows{display:flex;gap:6px}#story .arrows button{width:28px;height:28px;border-radius:8px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+#story .arrows button:hover{background:rgba(20,35,58,.05)}
+#story .min{cursor:pointer;color:var(--ink3);letter-spacing:0}
+#story.mini p,#story.mini .nav{display:none}
+/* drawer */
+#info{position:fixed;right:var(--m);top:76px;bottom:24px;width:360px;z-index:5;padding:22px;overflow-y:auto;transform:translateX(calc(100% + 40px));transition:transform .45s var(--ease)}
 #info.open{transform:none}
-#info .tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:10px;margin-right:6px;border:1px solid}
-#info h3{font-size:21px;margin:10px 0 2px;font-weight:500}
-#info .en{font-size:12px;opacity:.5;letter-spacing:1px}
-#info .row{font-size:13px;margin-top:10px;opacity:.9}#info .row span{opacity:.5;margin-right:8px}
-#info .desc{font-size:13px;line-height:1.7;opacity:.85;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.08)}
-#info .x{position:absolute;right:12px;top:10px;cursor:pointer;opacity:.5;font-size:18px}
-#label{position:fixed;pointer-events:none;padding:5px 10px;font-size:12px;border-radius:8px;background:rgba(5,10,25,.75);border:1px solid var(--bd);white-space:nowrap;transform:translate(-50%,-140%);opacity:0;transition:opacity .15s}
-#legend{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(20px);padding:9px 18px;font-size:12px;display:flex;gap:18px;opacity:0;transition:all 1.2s 1s}
-#legend span{display:flex;align-items:center;gap:6px}#legend i{width:10px;height:10px;border-radius:50%;box-shadow:0 0 8px currentColor}
-#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#01030a;z-index:10;transition:opacity 1.2s;font-size:12px;letter-spacing:4px}
-#loader .ring{width:54px;height:54px;border-radius:50%;border:2px solid rgba(47,243,224,.15);border-top-color:var(--teal);animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-#plbl{position:fixed;inset:0;pointer-events:none;z-index:0}
-.pl{position:absolute;left:0;top:0;text-align:center;color:#4c5768;line-height:1.05;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px rgba(255,255,255,.9);will-change:transform,opacity}
-.pl .z{font-size:11px;font-weight:500}.pl .e{font-size:8.5px;letter-spacing:.3px;opacity:.85}
-.pl.t0 .z{font-size:15px;letter-spacing:4px;color:#3a4454;font-weight:600}.pl.t0 .e{font-size:9.5px;letter-spacing:2px;text-transform:uppercase}
-.pl.t1 .z{font-size:12px;letter-spacing:2px;color:#5d6878}.pl.t1 .e{font-size:8.5px;letter-spacing:1px}
-.pl.t2 .z{font-size:10.5px;color:#2e3846}.pl.t2::before{content:"";display:block;margin:0 auto 2px;width:4px;height:4px;border-radius:50%;background:#5a6576;box-shadow:0 0 0 1.5px #fff}
-#lbl{position:fixed;inset:0;pointer-events:none;z-index:0}
+#info .x{position:absolute;right:14px;top:12px;width:28px;height:28px;border-radius:8px;font-size:18px;color:var(--ink3);display:flex;align-items:center;justify-content:center}
+#info .x:hover{background:rgba(20,35,58,.05)}
+#info .tags{display:flex;gap:6px;flex-wrap:wrap}
+#info .tag{font-size:11px;padding:3px 8px;border-radius:5px;border:1px solid}
+#info h3{font-family:var(--serif);font-size:24px;font-weight:700;margin:14px 0 2px}
+#info .en{font-size:11px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase}
+#info table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12.5px}
+#info td{padding:8px 0;border-top:1px solid var(--rule);vertical-align:top}#info td:first-child{color:var(--ink3);width:72px}
+#info .desc{font-size:13px;line-height:1.75;color:var(--ink2);margin-top:14px}
+#info .rel{margin-top:16px}#info .rel h5{font-size:10px;letter-spacing:.14em;color:var(--ink3);font-weight:500;margin-bottom:8px}
+/* hover label */
+#label{position:fixed;z-index:7;pointer-events:none;padding:5px 9px;font-size:12px;border-radius:6px;background:var(--ink);color:#fff;white-space:nowrap;transform:translate(-50%,-150%);opacity:0;transition:opacity .15s}
+/* map overlay */
+#plbl,#lbl{position:fixed;inset:0;pointer-events:none;z-index:1}
 #lbl svg{position:absolute;inset:0;width:100%;height:100%}
-#lbl svg circle{stroke:none}
-.cl{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;padding:5px 9px 6px;border-radius:7px;background:rgba(255,255,255,.86);color:#1f2a3a;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid;border-left-width:3px;font-size:11px;line-height:1.4;max-width:210px;white-space:normal;will-change:transform,opacity;transition:background .2s;box-shadow:0 3px 12px rgba(20,40,70,.25)}
-.cl:hover{background:#fff;z-index:5}
-.cl .c{font-size:10px;color:#6b7686}.cl b{font-weight:700;font-size:12px;color:#121a26}
-.cl .r{font-size:10px}.cl .n{white-space:nowrap}.cl .n:hover{text-decoration:underline}
-#ctrl,#story,#info,#legend,#title{z-index:2}
-@media(max-width:1100px){#story{display:none}}
+.pl{position:absolute;left:0;top:0;text-align:center;color:#56606F;line-height:1.05;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px #fff;will-change:transform,opacity}
+.pl .z{font-size:11px;font-weight:500}.pl .e{font-size:8px;letter-spacing:.06em;opacity:.8;text-transform:uppercase}
+.pl.t0 .z{font-family:var(--serif);font-size:14px;letter-spacing:.3em;color:#3d4656;font-weight:600}.pl.t0 .e{font-size:8.5px;letter-spacing:.2em}
+.pl.t1 .z{font-size:11.5px;letter-spacing:.15em;color:#6a7484}
+.pl.t2 .z{font-size:10.5px;color:#2e3846}.pl.t2::before{content:"";display:block;margin:0 auto 2px;width:4px;height:4px;border-radius:50%;background:#5a6576;box-shadow:0 0 0 1.5px #fff}
+.cl{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;background:#fff;border:1px solid var(--rule);border-top:3px solid;border-radius:8px;padding:7px 10px 8px;min-width:96px;max-width:220px;box-shadow:0 1px 2px rgba(20,35,58,.06),0 6px 16px rgba(20,35,58,.08);will-change:transform,opacity;transition:box-shadow .2s}
+.cl:hover{box-shadow:0 2px 4px rgba(20,35,58,.08),0 12px 28px rgba(20,35,58,.14);z-index:5}
+.cl .h{font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap}.cl .h small{font-weight:400;font-size:10.5px;color:var(--ink3);margin-left:4px}
+.cl .e{font-size:9px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;white-space:nowrap;margin-top:1px}
+.cl ul{list-style:none;margin-top:5px;padding-top:5px;border-top:1px solid var(--rule)}
+.cl li{font-size:11.5px;color:var(--ink2);line-height:1.55;white-space:nowrap;display:flex;align-items:center;gap:6px}.cl li i{width:6px;height:6px;border-radius:50%;flex:none}
+.cl li:hover{color:var(--ink)}.cl li.more{color:var(--ink3);font-size:10.5px}
+.cl .sg{display:inline-block;font-size:10px;padding:1px 6px;border-radius:4px;margin-top:5px;color:#fff}
+.cl.rg{border-top-width:3px;min-width:150px}.cl.rg .h{font-family:var(--serif);font-size:15px}
+.cl.rg .bar{display:flex;height:4px;border-radius:2px;overflow:hidden;margin-top:6px;gap:1px}
+#loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:var(--paper);z-index:20;transition:opacity 1s;font-family:var(--serif);color:var(--ink);font-size:15px;letter-spacing:.2em}
+#loader i{width:120px;height:1px;background:var(--rule);position:relative;overflow:hidden}#loader i::after{content:"";position:absolute;inset:0;width:40%;background:var(--ink);animation:ld 1.2s var(--ease) infinite}
+@keyframes ld{from{transform:translateX(-100%)}to{transform:translateX(250%)}}
+/* mobile */
+@media(max-width:760px){
+ :root{--m:14px}
+ #title{top:14px;max-width:calc(100vw - 28px)}#title h1{font-size:24px}#title p{font-size:12px}#title .nums{display:none}#title .k{display:none}
+ #flyBtns{top:auto;bottom:66px;left:14px;right:14px;max-width:none}
+ #dock{bottom:14px;left:14px;right:14px}#layerBtns{flex:1;justify-content:space-between}#layerBtns button{padding:6px 7px;font-size:12px}#layerBtns button small{display:none}
+ #filterBtn span:not(.badge){display:none}
+ #pop{left:0;right:0;bottom:0;width:auto;max-height:70vh;border-radius:16px 16px 0 0;padding-bottom:28px}
+ #story{left:14px;right:14px;width:auto;bottom:auto;top:96px;padding:10px 14px}#story p,#story .nav{display:none}#story h2{font-size:14px;margin:4px 0 0}
+ #info{left:0;right:0;top:auto;bottom:0;width:auto;max-height:62vh;border-radius:16px 16px 0 0;transform:translateY(105%)}
+ .cl{max-width:160px;padding:5px 8px}.cl li{font-size:10.5px}
+}
 </style>
+
+</head>
+<body>
+<div id="loader"><div>全球 AI 产业链</div><i></i></div>
+<header id="title" class="fade"><div class="k">Global AI Industry Chain · 2026</div><h1>全球 AI 产业链</h1><p>从芯片、光模块到算力、模型与应用的全球分布</p>
+ <div class="nums"><div><b id="nSites">0</b>站点</div><div><b id="nSeg">23</b>细分环节</div><div><b id="nReg">7</b>地区</div><div><b id="nArc">0</b>供应链连线</div></div></header>
+<nav id="flyBtns" class="panel fade">
+ <button data-f="globe" class="on">全球</button><button data-f="us">美国</button><button data-f="bay">湾区</button><button data-f="cn">中国</button><button data-f="yrd">长三角</button><button data-f="prd">珠三角</button><button data-f="tw">台湾</button><button data-f="sea">东南亚</button><button data-f="jk">日韩</button><button data-f="eu">欧洲</button>
+</nav>
+<div id="dock" class="fade">
+ <div id="layerBtns" class="panel">
+  <button data-l="up"><i style="background:var(--up)"></i>上游<small id="cUp"></small></button>
+  <button data-l="mid"><i style="background:var(--mid)"></i>中游<small id="cMid"></small></button>
+  <button data-l="down"><i style="background:var(--down)"></i>下游<small id="cDown"></small></button>
+ </div>
+ <button id="filterBtn" class="panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4.5 8h7M7 12h2"/></svg><span>筛选</span><span class="badge" id="fBadge"></span></button>
+</div>
+<div id="pop" class="panel">
+ <h4>细分环节<span id="segClr">清除</span></h4><div id="segBtns"></div>
+ <h4>地区</h4>
+ <div class="chips" id="ctyBtns"><button class="chip on" data-c="all">全部</button><button class="chip" data-c="US">美国</button><button class="chip" data-c="CN">中国大陆</button><button class="chip" data-c="TW">台湾</button><button class="chip" data-c="SEA">东南亚/南亚</button><button class="chip" data-c="JK">日韩</button><button class="chip" data-c="EU">欧洲</button><button class="chip" data-c="ME">中东</button></div>
+ <h4>显示</h4>
+ <div class="sw">供应链连线<button id="arcBtn" class="on"></button></div>
+ <div class="sw">自动旋转<button id="rotBtn"></button></div>
+ <div class="src" id="srcNote"></div>
+</div>
+<aside id="story" class="panel fade"></aside>
+<aside id="info" class="panel"><button class="x" id="infoX">×</button><div id="infoBody"></div></aside>
+<div id="plbl"></div><div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
+<div id="stats" hidden></div>
 <script src="data.js"></script>
 <script type="importmap">
 {"imports":{"three":"./lib/three.module.js","three/addons/":"./lib/addons/"}}
 </script>
-</head>
-<body>
-<div id="loader"><div class="ring"></div><div>正在加载地球 · LOADING</div></div>
-<div id="title"><h1>全球AI产业链</h1><p>芯片 · 光模块 · PCB · 服务器 · 算力 · 模型 · 应用</p></div>
-<div id="ctrl" class="glass">
-  <div class="sec">产业层级</div>
-  <div class="btns" id="layerBtns">
-    <button data-l="all" class="on">全部</button>
-    <button data-l="up"><span class="dot" style="background:var(--gold)"></span>上游</button>
-    <button data-l="mid"><span class="dot" style="background:var(--teal)"></span>中游</button>
-    <button data-l="down"><span class="dot" style="background:var(--copper)"></span>下游</button>
-  </div>
-  <div class="sec">细分环节 <span id="segClr" style="cursor:pointer;opacity:.7;margin-left:6px">清除</span></div>
-  <div class="btns" id="segBtns"></div>
-  <div class="sec">地区</div>
-  <div class="btns" id="ctyBtns">
-    <button data-c="all" class="on">全部</button><button data-c="US">美国</button><button data-c="CN">中国大陆</button><button data-c="TW">台湾</button><button data-c="SEA">东南亚/南亚</button><button data-c="JK">日韩</button><button data-c="EU">欧洲</button><button data-c="ME">中东</button>
-  </div>
-  <div class="sec">视角飞行</div>
-  <div class="btns" id="flyBtns">
-    <button data-f="globe">全球</button><button data-f="us">美国</button><button data-f="bay">湾区</button><button data-f="cn">中国</button><button data-f="yrd">长三角</button><button data-f="prd">珠三角</button><button data-f="tw">台湾</button><button data-f="sea">东南亚</button><button data-f="jk">日韩</button><button data-f="eu">欧洲</button>
-  </div>
-  <div class="sec">显示</div>
-  <div class="btns">
-    <button id="rotBtn" class="on">自动旋转</button><button id="arcBtn" class="on">供应链连线</button>
-  </div>
-  <div id="stats"></div>
-</div>
-<div id="story" class="glass"></div>
-<div id="info" class="glass"><div class="x" id="infoX">×</div><div id="infoBody"></div></div>
-<div id="plbl"></div><div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
-<div id="legend" class="glass">
-  <span><i style="color:var(--gold);background:var(--gold)"></i>上游 芯片/制造/系统/能源</span>
-  <span><i style="color:var(--teal);background:var(--teal)"></i>中游 算力/云/模型</span>
-  <span><i style="color:var(--copper);background:var(--copper)"></i>下游 应用/机器人</span>
-  <span style="opacity:.7">卡片色条 = 产业层级 · 角标 = 细分环节</span>
-</div>
-
 <script type="module">
 import * as THREE from 'three';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
@@ -115,14 +163,14 @@ import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 // [id, 中文名, English, 城市, lat, lon, layer, country, 角色, 描述]
 const AD=window.AI_DATA,SEG=AD.segments,REG=AD.regions;
 const D=AD.sites.map(([id,cn,en,city,lat,lon,seg,reg,desc])=>[id,cn,en,city,lat,lon,SEG[seg][1],reg,SEG[seg][0],desc,seg]);
-const ARCS=AD.arcs;
+const ARCS=AD.arcs;const AINK={up:'#B8860B',mid:'#0F8C86',down:'#C2602F'};
 const COL={up:new THREE.Color('#ffc94a'),mid:new THREE.Color('#2ff3e0'),down:new THREE.Color('#ff8a4c'),CN:new THREE.Color('#ff3b5c')};
 const LNAME={up:'上游',mid:'中游',down:'下游'};
 const LDESC={up:'芯片/制造/器件/系统/能源',mid:'算力/云/模型/数据',down:'应用/终端/机器人'};
 
 // ================= SCENE =================
 const R=1;
-const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});renderer.setClearColor(0x000000,0);
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
 document.body.prepend(renderer.domElement);
 const scene=new THREE.Scene();
@@ -167,18 +215,11 @@ void main(){
  #include <colorspace_fragment>
 }`}));
 scene.add(earth);
-const atmo=new THREE.Mesh(new THREE.SphereGeometry(R*1.09,96,96),new THREE.ShaderMaterial({side:THREE.BackSide,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,
+const atmo=new THREE.Mesh(new THREE.SphereGeometry(R*1.06,96,96),new THREE.ShaderMaterial({side:THREE.BackSide,transparent:true,depthWrite:false,
 vertexShader:`varying vec3 vN;varying vec3 vW;void main(){vN=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader:`varying vec3 vN;varying vec3 vW;void main(){vec3 V=normalize(cameraPosition-vW);float i=pow(clamp(.62+dot(vN,V),0.,1.),5.);gl_FragColor=vec4(vec3(.45,.7,1.)*i*.55,i);}`}));
+fragmentShader:`varying vec3 vN;varying vec3 vW;void main(){vec3 V=normalize(cameraPosition-vW);float i=pow(clamp(.55+dot(vN,V),0.,1.),3.);gl_FragColor=vec4(vec3(.80,.88,.96),i*.55);}`}));
 scene.add(atmo);
-// stars
-{const N=9000,p=new Float32Array(N*3),c=new Float32Array(N*3),s=new Float32Array(N);
-for(let i=0;i<N;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(40+Math.random()*60);p.set([v.x,v.y,v.z],i*3);const k=Math.random();const col=new THREE.Color().setHSL(.55+k*.15-(k>.85?.5:0),.5,.75+Math.random()*.25);c.set([col.r,col.g,col.b],i*3);s[i]=Math.random();}
-const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('color',new THREE.BufferAttribute(c,3));g.setAttribute('seed',new THREE.BufferAttribute(s,1));
-const m=new THREE.ShaderMaterial({uniforms:{uTime:earthU.uTime,uPR:{value:renderer.getPixelRatio()}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,vertexColors:true,
-vertexShader:`attribute float seed;uniform float uTime,uPR;varying vec3 vC;varying float vA;void main(){vC=color;vA=.45+.55*sin(uTime*(.5+seed*2.)+seed*60.);vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=(1.+pow(seed,6.)*3.5)*uPR*(70./-mv.z);gl_Position=projectionMatrix*mv;}`,
-fragmentShader:`varying vec3 vC;varying float vA;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,0.,d);gl_FragColor=vec4(vC,a*a*vA);}`});
-scene.add(new THREE.Points(g,m));}
+
 
 // ================= MARKERS =================
 const markerGroup=new THREE.Group();scene.add(markerGroup);
@@ -212,27 +253,31 @@ ARCS.forEach(([a,b],i)=>{const A=byId[a],B=byId[b];if(!A||!B)return;
  const pa=ll2v(A.lat,A.lon,R*1.002),pb=ll2v(B.lat,B.lon,R*1.002);const dist=pa.distanceTo(pb);
  const mid=pa.clone().add(pb).multiplyScalar(.5).normalize().multiplyScalar(R*(1+Math.max(dist*.55,.025)));
  const curve=new THREE.QuadraticBezierCurve3(pa,mid,pb);
- const geo=new THREE.TubeGeometry(curve,Math.max(24,Math.round(dist*200)),Math.min(.0022,.0008+dist*.003),5,false);
- const m=new THREE.ShaderMaterial({uniforms:{uA:{value:A.color},uB:{value:B.color},uTime:earthU.uTime,uOff:{value:Math.random()},uSpd:{value:.25+Math.random()*.15},uOp:{value:0}},transparent:true,depthWrite:false,blending:THREE.NormalBlending,
+ const geo=new THREE.TubeGeometry(curve,Math.max(24,Math.round(dist*200)),Math.min(.0013,.00035+dist*.0007),4,false);
+ const m=new THREE.ShaderMaterial({uniforms:{uA:{value:new THREE.Color(AINK[A.layer])},uB:{value:new THREE.Color(AINK[B.layer])},uTime:earthU.uTime,uOff:{value:Math.random()},uSpd:{value:.25+Math.random()*.15},uOp:{value:0}},transparent:true,depthWrite:false,blending:THREE.NormalBlending,
  vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
- fragmentShader:`uniform vec3 uA,uB;uniform float uTime,uOff,uSpd,uOp;varying vec2 vUv;void main(){float x=vUv.x;float h=fract(uTime*uSpd+uOff);float head=smoothstep(.22,0.,h-x)*step(x,h);float h2=fract(h+.5);float head2=smoothstep(.22,0.,h2-x)*step(x,h2);vec3 c=mix(uA,uB,x);float a=.35+pow(head,3.)*.65+pow(head2,3.)*.4;gl_FragColor=vec4(c*(.7+pow(max(head,head2),6.)*.5),min(1.,a)*uOp);}`});
+ fragmentShader:`uniform vec3 uA,uB;uniform float uTime,uOff,uSpd,uOp;varying vec2 vUv;void main(){float x=vUv.x;float h=fract(uTime*uSpd+uOff);float head=smoothstep(.22,0.,h-x)*step(x,h);float h2=fract(h+.5);float head2=smoothstep(.22,0.,h2-x)*step(x,h2);vec3 c=mix(uA,uB,x);float a=.16+pow(head,4.)*.75+pow(head2,4.)*.35;gl_FragColor=vec4(c,min(1.,a)*uOp);}`});
  const mesh=new THREE.Mesh(geo,m);arcGroup.add(mesh);arcs.push({A,B,mesh,m,op:0});});
 
 // ================= POST =================
-const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
-const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.35,.4,.97);composer.addPass(bloom);composer.addPass(new OutputPass());
 
 // ================= UI =================
 let fLayer='all',fCty='all',showArcs=true;
 let fSeg=new Set();const visible=o=>(fLayer==='all'||o.layer===fLayer)&&(fCty==='all'||o.cty===fCty)&&(!fSeg.size||fSeg.has(o.seg));
 function applyFilter(){markers.forEach(o=>o.target=visible(o)?1:0);updateStats();}
 function updateStats(){const v=markers.filter(visible);const cnt=k=>v.filter(o=>o.layer===k).length;
- document.getElementById('stats').innerHTML=`当前显示 <b>${v.length}</b> 处 · 连线 ${arcs.filter(a=>visible(a.A)&&visible(a.B)).length}<br>上游 ${cnt('up')} · 中游 ${cnt('mid')} · 下游 ${cnt('down')}<br>`+Object.keys(REG).map(k=>`${REG[k]} ${v.filter(o=>o.cty===k).length}`).join(' · ');}
+ const set=(id,t)=>{const e=document.getElementById(id);if(e)e.textContent=t;};set('nSites',v.length);set('nArc',arcs.filter(a=>visible(a.A)&&visible(a.B)).length);
+ set('nSeg',new Set(v.map(o=>o.seg)).size);set('nReg',new Set(v.map(o=>o.cty)).size);
+ const all=markers;set('cUp',all.filter(o=>o.layer==='up').length);set('cMid',all.filter(o=>o.layer==='mid').length);set('cDown',all.filter(o=>o.layer==='down').length);
+ const n=fSeg.size+(fCty!=='all'?1:0);const bd=document.getElementById('fBadge');if(bd){bd.textContent=n;bd.style.display=n?'inline-flex':'none';}}
 const grp=(id,attr,fn)=>document.querySelectorAll(`#${id} button`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} button`).forEach(x=>x.classList.remove('on'));b.classList.add('on');fn(b.dataset[attr]);});
-grp('layerBtns','l',v=>{fLayer=v;applyFilter();});
+document.querySelectorAll('#layerBtns button').forEach(b=>b.onclick=()=>{const v=b.dataset.l;fLayer=fLayer===v?'all':v;document.querySelectorAll('#layerBtns button').forEach(x=>x.classList.toggle('on',x.dataset.l===fLayer));document.getElementById('layerBtns').classList.toggle('dim',fLayer!=='all');applyFilter();});
+const pop=document.getElementById('pop');document.getElementById('filterBtn').onclick=e=>{e.stopPropagation();pop.classList.toggle('open');};
+addEventListener('pointerdown',e=>{if(pop.classList.contains('open')&&!pop.contains(e.target)&&!e.target.closest('#filterBtn'))pop.classList.remove('open');});
+document.getElementById('srcNote').textContent=AD.sources;
 grp('ctyBtns','c',v=>{fCty=v;applyFilter();const m={US:'us',CN:'cn',TW:'tw',SEA:'sea',JK:'jk',EU:'eu',ME:'me'};if(m[v])flyTo(m[v]);});
 const SEGINK={up:'#e0a82a',mid:'#2bc6bb',down:'#e58050'};
-document.getElementById('segBtns').innerHTML=Object.entries(SEG).map(([k,[n,l,ab]])=>`<button class="sb" data-s="${k}" title="${n}"><span class="bd" style="background:${SEGINK[l]}">${ab}</span>${n}</button>`).join('');
+document.getElementById('segBtns').innerHTML=['up','mid','down'].map(L=>`<div class="chips" style="margin-bottom:6px">`+Object.entries(SEG).filter(([k,v])=>v[1]===L).map(([k,[n,l]])=>`<button class="chip" data-s="${k}"><i style="background:${AINK[l]}"></i>${n}</button>`).join('')+'</div>').join('');
 document.querySelectorAll('#segBtns button').forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(fSeg.has(k))fSeg.delete(k);else fSeg.add(k);b.classList.toggle('on',fSeg.has(k));applyFilter();});
 document.getElementById('segClr').onclick=()=>{fSeg.clear();document.querySelectorAll('#segBtns button').forEach(b=>b.classList.remove('on'));applyFilter();};
 const rotBtn=document.getElementById('rotBtn');rotBtn.onclick=()=>{if(!controls.autoRotate&&controls.target.lengthSq()>0){flyTo('globe');setTimeout(()=>{controls.autoRotate=true;rotBtn.classList.add('on');},2300);return;}controls.autoRotate=!controls.autoRotate;rotBtn.classList.toggle('on',controls.autoRotate);};
@@ -240,7 +285,7 @@ const arcBtn=document.getElementById('arcBtn');arcBtn.onclick=()=>{showArcs=!sho
 
 const PRESETS={globe:[28,85,4.2],us:[38.5,-97,2.7],bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],cn:[29.5,113.5,.95,38],yrd:[30.6,120.3,.16,45],prd:[22.6,113.9,.09,45],tw:[23.6,120.8,.13,40],sea:[8,104,.75,30],jk:[34.5,133,.42,38],eu:[49,7,.55,38],me:[27,47,.9,30]};
 let fly=null;
-function flyTo(k,latlon){const [lat,lon,d,tilt=0]=latlon||PRESETS[k];const from=camera.position.clone();let to,tgt;
+function flyTo(k,latlon){if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));const [lat,lon,d,tilt=0]=latlon||PRESETS[k];const from=camera.position.clone();let to,tgt;
  if(tilt){tgt=ll2v(lat,lon,R);const n=tgt.clone().normalize();const east=new THREE.Vector3(0,1,0).cross(n).normalize();const north=n.clone().cross(east);
   const tr=tilt*Math.PI/180;to=tgt.clone().addScaledVector(n,Math.cos(tr)*d).addScaledVector(north,-Math.sin(tr)*d);}
  else{to=ll2v(lat,lon,d);tgt=new THREE.Vector3();}
@@ -254,15 +299,22 @@ function slerpCam(f,t){const a=f.from.length(),b=f.to.length();const da=f.from.c
 
 // story
 const story=[
- ['全球总览','#9ad7ff','AI 产业链横跨三层二十余个细分环节：上游的芯片设计、EDA、设备、材料、晶圆代工、存储/HBM、先进封装、PCB/载板、光模块、服务器 ODM、网络与电源液冷；中游的数据中心、云、基础模型与数据平台；下游的企业软件、智驾、机器人与终端。设计在美国，制造在东亚，组装与扩产正大规模流向东南亚。','globe'],
- ['美国 · 设计与算力','#ffc94a','英伟达、AMD、博通在湾区定义算力；EDA 与设备（Synopsys、应用材料、泛林、KLA）掌握源头；台积电/英特尔/三星/美光在亚利桑那、得州、纽约回流制造。超大规模数据中心沿弗吉尼亚、俄亥俄、艾奥瓦、得州分布，Stargate 与 xAI Colossus 引领吉瓦级集群；OpenAI、Anthropic、谷歌、Meta 争夺前沿模型。','us'],
- ['台湾 · 制造心脏','#2ff3e0','台积电新竹—台中—台南—高雄的先进制程与竹南/嘉义 CoWoS 封装，是全球 AI 芯片的唯一高端产能；鸿海、广达、纬创、纬颖、英业达把 GPU 组装成 GB200 机柜；台达、奇鋐提供电源与液冷，欣兴、南电供应 ABF 载板。','tw'],
- ['中国大陆 · 全链条自主','#ff3b5c','长三角集中中芯、华虹、长电、沪硅、中微、沐曦/壁仞/燧原与 MiniMax 等；珠三角有华为海思、腾讯、工业富联、胜宏、深南、鹏鼎；中际旭创、新易盛、天孚、光迅组成全球最强光模块集群，向英伟达与北美云厂商供货；东数西算 8 大枢纽承载算力，DeepSeek、通义、Kimi、智谱领跑开源模型。','cn'],
- ['东南亚/南亚 · 产能转移','#ff8a4c','马来西亚槟城/居林是封测重镇（英特尔、美光、AMD、日月光、英飞凌），柔佛成为数据中心热点；泰国聚集中资 PCB（胜宏、沪电、景旺、鹏鼎、深南）与光模块（中际旭创、新易盛、天孚、Fabrinet）；越南有安靠、三星、富士康、立讯；新加坡有美光、格芯、联电；印度推进美光萨南德、塔塔晶圆厂与富士康金奈。','sea'],
- ['日韩欧中东 · 关键节点','#b9a3ff','韩国三星与 SK 海力士垄断 HBM；日本东京电子、爱德万、信越、胜高、揖斐电掌握设备与材料，台积电熊本与 Rapidus 北海道补强制造；荷兰 ASML 独供 EUV、蔡司提供光学，德累斯顿聚集英飞凌与 ESMC；中东的 G42/Stargate UAE 与沙特 HUMAIN 成为新算力中心。','jk'],
+ ['全球总览','#14233A','AI 产业链横跨三层二十余个细分环节：上游的芯片设计、EDA、设备、材料、晶圆代工、存储/HBM、先进封装、PCB/载板、光模块、服务器 ODM、网络与电源液冷；中游的数据中心、云、基础模型与数据平台；下游的企业软件、智驾、机器人与终端。设计在美国，制造在东亚，组装与扩产正大规模流向东南亚。','globe'],
+ ['美国 · 设计与算力','#B8860B','英伟达、AMD、博通在湾区定义算力；EDA 与设备（Synopsys、应用材料、泛林、KLA）掌握源头；台积电/英特尔/三星/美光在亚利桑那、得州、纽约回流制造。超大规模数据中心沿弗吉尼亚、俄亥俄、艾奥瓦、得州分布，Stargate 与 xAI Colossus 引领吉瓦级集群；OpenAI、Anthropic、谷歌、Meta 争夺前沿模型。','us'],
+ ['台湾 · 制造心脏','#0F8C86','台积电新竹—台中—台南—高雄的先进制程与竹南/嘉义 CoWoS 封装，是全球 AI 芯片的唯一高端产能；鸿海、广达、纬创、纬颖、英业达把 GPU 组装成 GB200 机柜；台达、奇鋐提供电源与液冷，欣兴、南电供应 ABF 载板。','tw'],
+ ['中国大陆 · 全链条自主','#B23A48','长三角集中中芯、华虹、长电、沪硅、中微、沐曦/壁仞/燧原与 MiniMax 等；珠三角有华为海思、腾讯、工业富联、胜宏、深南、鹏鼎；中际旭创、新易盛、天孚、光迅组成全球最强光模块集群，向英伟达与北美云厂商供货；东数西算 8 大枢纽承载算力，DeepSeek、通义、Kimi、智谱领跑开源模型。','cn'],
+ ['东南亚/南亚 · 产能转移','#C2602F','马来西亚槟城/居林是封测重镇（英特尔、美光、AMD、日月光、英飞凌），柔佛成为数据中心热点；泰国聚集中资 PCB（胜宏、沪电、景旺、鹏鼎、深南）与光模块（中际旭创、新易盛、天孚、Fabrinet）；越南有安靠、三星、富士康、立讯；新加坡有美光、格芯、联电；印度推进美光萨南德、塔塔晶圆厂与富士康金奈。','sea'],
+ ['日韩欧中东 · 关键节点','#5B5F97','韩国三星与 SK 海力士垄断 HBM；日本东京电子、爱德万、信越、胜高、揖斐电掌握设备与材料，台积电熊本与 Rapidus 北海道补强制造；荷兰 ASML 独供 EUV、蔡司提供光学，德累斯顿聚集英飞凌与 ESMC；中东的 G42/Stargate UAE 与沙特 HUMAIN 成为新算力中心。','jk'],
 ];
-document.getElementById('story').innerHTML='<div class="sec">产业叙事 · 点击卡片飞行</div>'+story.map(s=>`<div class="card" data-f="${s[3]}"><h2><i style="background:${s[1]}"></i>${s[0]}</h2><p style="margin:0">${s[2]}</p></div>`).join('');
-document.querySelectorAll('#story .card').forEach(c=>c.onclick=()=>flyTo(c.dataset.f));
+let stepI=0;const storyEl=document.getElementById('story');
+function renderStep(go){const st=story[stepI];storyEl.innerHTML=`<div class="st"><span>${String(stepI+1).padStart(2,'0')} / ${String(story.length).padStart(2,'0')} · 产业叙事</span><span class="min" id="stMin">${storyEl.classList.contains('mini')?'展开':'收起'}</span></div><h2><i style="background:${st[1]}"></i>${st[0]}</h2><p>${st[2]}</p>
+ <div class="nav"><div class="dots">${story.map((_,k)=>`<i class="${k===stepI?'on':''}" data-k="${k}"></i>`).join('')}</div><div class="arrows"><button id="stPrev" aria-label="上一步">‹</button><button id="stNext" aria-label="下一步">›</button></div></div>`;
+ storyEl.querySelector('#stPrev').onclick=()=>{stepI=(stepI+story.length-1)%story.length;renderStep(1);};
+ storyEl.querySelector('#stNext').onclick=()=>{stepI=(stepI+1)%story.length;renderStep(1);};
+ storyEl.querySelectorAll('.dots i').forEach(d=>d.onclick=()=>{stepI=+d.dataset.k;renderStep(1);});
+ storyEl.querySelector('#stMin').onclick=()=>{storyEl.classList.toggle('mini');renderStep(0);};
+ if(go){flyTo(st[3]);document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===st[3]));}}
+renderStep(0);
 
 // picking
 const ray=new THREE.Raycaster();const mouse=new THREE.Vector2(9,9);const label=document.getElementById('label');let hovered=null,selected=null,mx=0,my=0;
@@ -272,11 +324,15 @@ renderer.domElement.addEventListener('pointerup',e=>{if(!downAt||Math.hypot(e.cl
 function pick(){ray.setFromCamera(mouse,camera);const hits=ray.intersectObjects(markers.filter(o=>o.target).map(o=>o.hit),false);
  const eh=ray.intersectObject(earth,false)[0];let h=hits[0];if(h&&eh&&eh.distance<h.distance-.02)h=null;return h?h.object.userData.m:null;}
 function select(o){selected=o;const tagC='#'+o.color.getHexString();
- document.getElementById('infoBody').innerHTML=`<span class="tag" style="color:${tagC};border-color:${tagC}">${LNAME[o.layer]} · ${LDESC[o.layer]}</span><span class="tag" style="color:#cfe0ff;border-color:#567">${REG[o.cty]}</span>
- <h3>${o.cn}</h3><div class="en">${o.en}</div><div class="row"><span>城市</span>${o.city}</div><div class="row"><span>细分环节</span>${o.role}</div><div class="row"><span>坐标</span>${o.lat.toFixed(2)}°, ${o.lon.toFixed(2)}°</div><div class="desc">${o.desc}</div>
- ${(()=>{const rel=arcs.filter(a=>a.A===o||a.B===o).map(a=>a.A===o?'→ '+a.B.cn:'← '+a.A.cn);return rel.length?`<div class="row" style="font-size:12px"><span>链路</span>${rel.join('　')}</div>`:''})()}`;
+ const lc=AINK[o.layer];const rel=arcs.filter(a=>a.A===o||a.B===o);
+ document.getElementById('infoBody').innerHTML=`<div class="tags"><span class="tag" style="color:${lc};border-color:${lc}55">${LNAME[o.layer]}</span><span class="tag" style="color:${lc};border-color:${lc}55">${o.role}</span><span class="tag" style="color:var(--ink2);border-color:var(--rule)">${REG[o.cty]}</span></div>
+ <h3>${o.cn}</h3><div class="en">${o.en}</div>
+ <table><tr><td>城市</td><td>${o.city}</td></tr><tr><td>层级</td><td>${LNAME[o.layer]} · ${LDESC[o.layer]}</td></tr><tr><td>坐标</td><td>${o.lat.toFixed(2)}°, ${o.lon.toFixed(2)}°</td></tr></table>
+ <div class="desc">${o.desc}</div>
+ ${rel.length?`<div class="rel"><h5>供应链关系</h5><div class="chips">${rel.map(a=>{const p=a.A===o?a.B:a.A;return `<button class="chip" data-id="${p.id}"><i style="background:${AINK[p.layer]}"></i>${a.A===o?'→':'←'} ${p.cn}</button>`}).join('')}</div></div>`:''}`;
+ document.querySelectorAll('#infoBody .rel .chip').forEach(c=>c.onclick=()=>select(byId[c.dataset.id]));
  document.getElementById('info').classList.add('open');
- const cd=camera.position.length();flyTo(null,[o.lat-3,o.lon,Math.min(Math.max(cd,1.5),2.2)]);}
+ if(controls.target.lengthSq()===0){const cd=camera.position.length();flyTo(null,[o.lat-3,o.lon,Math.min(Math.max(cd,1.5),2.2)]);}}
 document.getElementById('infoX').onclick=()=>{document.getElementById('info').classList.remove('open');selected=null;};
 
 
@@ -286,17 +342,28 @@ const groups=[];{const m=new Map();markers.forEach(o=>{if(!m.has(o.city))m.set(o
  m.forEach((ms,city)=>{const n=new THREE.Vector3();ms.forEach(o=>n.add(o.pos));n.normalize();
   const el=document.createElement('div');el.className='cl';lblRoot.appendChild(el);
   const line=document.createElementNS(NS,'path');line.setAttribute('fill','none');line.setAttribute('stroke-width','1');svg.appendChild(line);
-  const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','2.6');svg.appendChild(dot);
+  const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','3');dot.setAttribute('fill','#fff');dot.setAttribute('stroke-width','1.6');svg.appendChild(dot);
   const g={city,ms,n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
   el.addEventListener('click',e=>{const t=e.target.closest('[data-id]');select(t?byId[t.dataset.id]:g.vis[0]);});
   groups.push(g);});}
+function addRegionGroups(){Object.keys(REG).forEach(rg=>{const ms=markers.filter(o=>o.cty===rg);const n=new THREE.Vector3();ms.forEach(o=>n.add(o.pos));n.normalize();
+ const el=document.createElement('div');el.className='cl rg';lblRoot.appendChild(el);
+ const line=document.createElementNS(NS,'path');line.setAttribute('fill','none');line.setAttribute('stroke-width','1');svg.appendChild(line);
+ const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','4');dot.setAttribute('fill','#fff');dot.setAttribute('stroke-width','2');svg.appendChild(dot);
+ const g={rg,city:REG[rg],ms,n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
+ el.addEventListener('click',()=>{const f=REGEN[rg][2];flyTo(f);document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===f));});
+ groups.push(g);});}
+const CITY_EN={"加州 圣克拉拉": "Santa Clara", "加州 帕洛阿尔托": "Palo Alto", "加州 桑尼维尔": "Sunnyvale", "加州 圣何塞": "San Jose", "加州 旧金山": "San Francisco", "加州 山景城": "Mountain View", "加州 门洛帕克": "Menlo Park", "加州 库比蒂诺": "Cupertino", "加州 弗里蒙特": "Fremont", "加州 米尔皮塔斯": "Milpitas", "华盛顿 西雅图": "Seattle", "华盛顿 雷德蒙德": "Redmond", "得州 奥斯汀": "Austin", "亚利桑那 凤凰城": "Phoenix", "亚利桑那 钱德勒": "Chandler", "纽约州 纽约市": "New York", "弗吉尼亚 阿什本": "Ashburn", "俄亥俄 哥伦布": "Columbus", "广东 深圳": "Shenzhen", "北京": "Beijing", "北京 亦庄": "Yizhuang, Beijing", "上海": "Shanghai", "浙江 杭州": "Hangzhou", "安徽 合肥": "Hefei", "湖北 武汉": "Wuhan", "江苏 苏州": "Suzhou", "江苏 无锡": "Wuxi", "江苏 昆山": "Kunshan", "广东 东莞": "Dongguan", "广东 广州": "Guangzhou", "广东 惠州": "Huizhou", "四川 成都": "Chengdu", "天津": "Tianjin", "贵州 贵安": "Gui'an", "台湾 新竹": "Hsinchu", "台湾 台中": "Taichung", "台湾 台南": "Tainan", "台湾 高雄": "Kaohsiung", "台湾 台北": "Taipei", "台湾 桃园": "Taoyuan", "台湾 新北": "New Taipei", "马来西亚 槟城": "Penang", "泰国 大城府": "Ayutthaya", "泰国 巴真府": "Prachinburi", "泰国 春武里": "Chonburi", "越南 北江": "Bac Giang", "新加坡 兀兰": "Woodlands, Singapore", "日本 东京": "Tokyo", "韩国 平泽": "Pyeongtaek", "韩国 利川": "Icheon", "德国 德累斯顿": "Dresden", "荷兰 费尔德霍芬": "Veldhoven", "英国 伦敦": "London", "法国 巴黎": "Paris", "阿联酋 阿布扎比": "Abu Dhabi"};const REGEN={"US": ["美国", "United States", "us"], "CN": ["中国大陆", "Mainland China", "cn"], "TW": ["台湾", "Taiwan", "tw"], "SEA": ["东南亚 / 南亚", "Southeast & South Asia", "sea"], "JK": ["日本 · 韩国", "Japan & Korea", "jk"], "EU": ["欧洲", "Europe", "eu"], "ME": ["中东 / 以色列", "Middle East", "me"]};
 const hex=c=>'#'+c.getHexString();const INK={up:'#c08a10',mid:'#0e9a91',down:'#c95f28',CN:'#d62a45'};const ink=o=>INK[o.layer];
-function buildCards(){groups.forEach(g=>{g.vis=g.ms.filter(visible);if(!g.vis.length)return;
+function buildCards(){groups.forEach(g=>{g.vis=g.rg?markers.filter(o=>o.cty===g.rg&&visible(o)):g.ms.filter(visible);if(!g.vis.length)return;
  const cnt={};g.vis.forEach(o=>cnt[o.layer]=(cnt[o.layer]||0)+1);const dom=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
- const col=INK[dom];g.col=col;
- g.el.style.borderColor=col+'88';g.el.style.borderLeftColor=col;g.line.setAttribute('stroke',col);g.dot.setAttribute('fill',col);
- if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<b>${o.cn}</b> <span class="c">${o.city}</span><div class="r"><span class="sg" style="background:${ink(o)}">${SEG[o.seg][2]}</span>${o.role}</div>`;}
- else g.el.innerHTML=`<b>${g.city.split(' ').pop()}</b> <span class="c">${g.vis.length} 家</span><div>${g.vis.slice(0,8).map(o=>`<span class="n" data-id="${o.id}"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:1px;background:${ink(o)}"></i>${o.cn}</span>`).join('<span style="opacity:.4">、</span>')}${g.vis.length>8?`<span style="opacity:.6"> 等${g.vis.length}家</span>`:''}</div>`;
+ const col=INK[dom];g.col=col;g.el.style.borderTopColor=col;g.line.setAttribute('stroke',col);g.dot.setAttribute('stroke',col);
+ const li=o=>`<li data-id="${o.id}"><i style="background:${ink(o)}"></i>${o.cn}</li>`;
+ if(g.rg){const R2=REGEN[g.rg];const sc={};g.vis.forEach(o=>sc[o.seg]=(sc[o.seg]||0)+1);const top=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  g.el.innerHTML=`<div class="h">${R2[0]}<small>${g.vis.length} 处</small></div><div class="e">${R2[1]}</div><div class="bar">${['up','mid','down'].map(l=>cnt[l]?`<span style="flex:${cnt[l]};background:${INK[l]}"></span>`:'').join('')}</div><ul>${top.map(([k,n])=>`<li><i style="background:${INK[SEG[k][1]]}"></i>${SEG[k][0]} <span style="color:var(--ink3);margin-left:auto;padding-left:8px">${n}</span></li>`).join('')}</ul>`;}
+ else if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<div class="h">${o.cn}</div><div class="e">${o.en}</div><span class="sg" style="background:${ink(o)}">${o.role}</span>`;}
+ else{const nm=g.city.replace(/^(加州|华盛顿|得州|纽约州|广东|浙江|安徽|湖北|江苏|四川|台湾|马来西亚|泰国|越南|新加坡|日本|韩国|德国|荷兰|英国|法国|阿联酋)\s*/,'');
+  g.el.innerHTML=`<div class="h">${nm}<small>${g.vis.length} 家</small></div><div class="e">${CITY_EN[g.city]||''}</div><ul>${g.vis.slice(0,5).map(li).join('')}${g.vis.length>5?`<li class="more">+ ${g.vis.length-5} 家</li>`:''}</ul>`;}
  g.el.style.transform='none';g.el.style.display='block';g.el.style.visibility='hidden';g.w=g.el.offsetWidth;g.h=g.el.offsetHeight;g.el.style.visibility='';g.el.style.display='none';g.init=false;});}
 const _applyFilter=applyFilter;applyFilter=function(){_applyFilter();buildCards();};
 // ================= MINIATURE BUILDINGS =================
@@ -375,6 +442,7 @@ const sMesh=new THREE.Mesh(sGeo,new THREE.ShaderMaterial({uniforms:bU,transparen
  vertexShader:BV+`varying vec2 vUv;void main(){vUv=uv;float v=gv(gid);vec3 wp=anchor+frame(position,anchor)*min(uScale,mr)*v;gl_Position=projectionMatrix*viewMatrix*vec4(wp,1.);}`,
  fragmentShader:`varying vec2 vUv;void main(){float d=length(vUv);float a=smoothstep(1.,.2,d);vec3 c=mix(vec3(.93,.93,.9),vec3(.45,.5,.58),smoothstep(1.,0.,d)*.6);gl_FragColor=vec4(c,a*.45);}`}));
 sMesh.frustumCulled=false;sMesh.renderOrder=1;bMesh.renderOrder=2;scene.add(sMesh);
+addRegionGroups();
 let bFade=0;
 function updateBuildings(){const cd=camera.position.length();const tgt=started&&introT>=1?THREE.MathUtils.smoothstep(3.7-cd,0,.7):0;bFade+=(tgt-bFade)*.12;
  {const h=Math.max(cd-1,.03);bU.uScale.value=THREE.MathUtils.lerp(h<.12?.036:.05,.017,THREE.MathUtils.smoothstep(h,.25,1.5))*h*bFade;}
@@ -386,10 +454,10 @@ function updateCards(){const W=innerWidth,H=innerHeight;const cd=camera.position
  const sc=THREE.MathUtils.clamp(2.3/cd,.72,1);
  tmp.set(0,0,0).project(camera);const cx=(tmp.x+1)/2*W,cy=(1-tmp.y)/2*H;
  // horizon: point visible if dot(n,camPos) > R
- const act=[];const shown=started&&introT>=1;
+ const act=[];const shown=started&&introT>=1;const wide=cd>3.1;
  groups.forEach(g=>{const f=g.n.dot(camera.position)/R;const face=(f-1)/(cd-1);g.face=face; // 1 at center
-  if(!shown||!g.vis.length||face<.06){g.act=false;return;}
-  tmp.copy(g.pos).project(camera);g.dx=(tmp.x+1)/2*W;g.dy=(1-tmp.y)/2*H;if(g.dx<(W>1100?250:0)||g.dx>(W>1100?W-310:W)||g.dy<0||g.dy>H){g.act=false;return;}
+  if(!shown||!g.vis.length||face<.06||(!!g.rg)!==wide){g.act=false;return;}
+  tmp.copy(g.pos).project(camera);g.dx=(tmp.x+1)/2*W;g.dy=(1-tmp.y)/2*H;if(g.dx<0||g.dx>W||g.dy<0||g.dy>H){g.act=false;return;}
   let ox=g.dx-cx,oy=g.dy-cy;const l=Math.hypot(ox,oy)||1;ox/=l;oy/=l;if(l<4){ox=.6;oy=-.8;}
   if(cd<1.6){const k=THREE.MathUtils.smoothstep(1.6-cd,0,.3);const sx=Math.sign(g.dx-W/2)||1;const vy=(g.dy-H/2)/H*.8;let nx=THREE.MathUtils.lerp(ox,sx,k),ny=THREE.MathUtils.lerp(oy,vy,k);const nl=Math.hypot(nx,ny)||1;ox=nx/nl;oy=ny/nl;}
   const L=28+22*sc+(cd<1.6?60:0),w=g.w*sc,h=g.h*sc;g.sw=w;g.sh=h;
@@ -401,11 +469,11 @@ function updateCards(){const W=innerWidth,H=innerHeight;const cd=camera.position
   for(let i=0;i<act.length;i++)for(let j=i+1;j<act.length;j++){const a=act[i],b=act[j];
    const ox=(a.sw+b.sw)/2+6-Math.abs(a.x-b.x),oy=(a.sh+b.sh)/2+5-Math.abs(a.y-b.y);
    if(ox>0&&oy>0){if(ox<oy){const s=(a.x<b.x?-1:1)*ox/2;a.x+=s*.35;b.x-=s*.65;}else{const s=(a.y<b.y?-1:1)*oy/2;a.y+=s*.35;b.y-=s*.65;}}}
-  const xl=W>1100?285:6,xr=W>1100?W-335:W-6;act.forEach(g=>{g.x=THREE.MathUtils.clamp(g.x,g.sw/2+xl,xr-g.sw/2);g.y=THREE.MathUtils.clamp(g.y,g.sh/2+6,H-g.sh/2-6);});}
+  const xl=8,xr=W-8;act.forEach(g=>{g.x=THREE.MathUtils.clamp(g.x,g.sw/2+xl,xr-g.sw/2);g.y=THREE.MathUtils.clamp(g.y,g.sh/2+6,H-g.sh/2-6);});}
  // greedy declutter: drop cards still overlapping a higher-priority one, or with very long leaders
- const placed=[];act.forEach(g=>{let ok=Math.hypot(g.x-g.dx,g.y-g.dy)<260*sc+g.sw/2;
+ let nK=0;const placed=['title','flyBtns','dock','story','info'].map(id=>{const e=document.getElementById(id);if(!e||(id==='info'&&!e.classList.contains('open')))return null;const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,sw:r.width+40,sh:r.height+32};}).filter(Boolean);act.forEach(g=>{let ok=Math.hypot(g.x-g.dx,g.y-g.dy)<260*sc+g.sw/2;
   if(ok)for(const p of placed){const ox=(p.sw+g.sw)/2-Math.abs(p.x-g.x),oy=(p.sh+g.sh)/2-Math.abs(p.y-g.y);if(ox>2&&oy>2){ok=false;break;}}
-  g.keep=ok;if(ok)placed.push(g);});
+  if(ok&&nK>=(W<760?6:15))ok=false;g.keep=ok;if(ok){placed.push(g);nK++;}});
  groups.forEach(g=>{const tgt=g.act&&g.keep?THREE.MathUtils.smoothstep(g.face,.06,.3):0;g.op+=(tgt-g.op)*.18;
   const vis=g.op>.02;g.el.style.display=vis?'block':'none';g.line.style.display=g.dot.style.display=vis?'':'none';
   if(g.act)g.dot.setAttribute('cx',g.dx),g.dot.setAttribute('cy',g.dy),g.dot.style.display=g.act?'':'none',g.dot.style.opacity=Math.min(1,g.face*4);
@@ -454,16 +522,16 @@ function tick(){const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTim
  markers.forEach((o,i)=>{const delay=started?THREE.MathUtils.clamp(introT*3-1.6-i*.004,0,1):0;
   o.vis+=(o.target*delay-o.vis)*Math.min(1,dt*6);const hi=(o===hovered||o===selected)?1:0;
   o.pillar.material.uniforms.uHi.value+=(hi-o.pillar.material.uniforms.uHi.value)*.2;o.ring.material.uniforms.uHi.value=o.pillar.material.uniforms.uHi.value;
-  const s=Math.max(o.vis,.0001);o.group.scale.set(s*sc,s*sc,s*(.6+.4*sc));o.group.visible=o.vis>.01;o.pillar.visible=o.ring.visible=o.head.visible=bFade<.35;
+  const s=Math.max(o.vis,.0001);o.group.scale.set(s*sc,s*sc,s*(.6+.4*sc));o.group.visible=o.vis>.01;o.pillar.visible=false;o.ring.visible=o.head.visible=bFade<.35;
   o.head.scale.setScalar(.0042*(1+hi*.8));});
  arcs.forEach(a=>{const tg=showArcs&&visible(a.A)&&visible(a.B)&&introT>=1?1:0;a.op+=(tg-a.op)*Math.min(1,dt*3);a.m.uniforms.uOp.value=a.op*THREE.MathUtils.smoothstep(camera.position.length(),1.12,1.6);a.mesh.visible=a.op>.01;});
  controls.update();{const nr=THREE.MathUtils.clamp((camera.position.length()-1)*.25,.0004,.05);if(Math.abs(nr-camera.near)>1e-5){camera.near=nr;camera.updateProjectionMatrix();}}
  hovered=started&&!fly?pick():null;renderer.domElement.style.cursor=hovered?'pointer':'grab';
  if(hovered){label.style.opacity=1;label.style.left=mx+'px';label.style.top=my+'px';label.innerHTML=`<b style="color:#${hovered.color.getHexString()}">●</b> ${hovered.cn} <span style="opacity:.55">· ${hovered.city}</span>`;}else label.style.opacity=0;
- updateBuildings();updateCards();composer.render();requestAnimationFrame(tick);}
+ updateBuildings();updateCards();renderer.render(scene,camera);requestAnimationFrame(tick);}
 tick();
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);bloom.resolution.set(innerWidth,innerHeight);});
-window.__flyTo=flyTo;window.__dbg=()=>({sc:bU.uScale.value,f:bFade,n:bGeo.attributes.position.count,gv:Array.from(bU.uGV.value.slice(0,5)),vis:bMesh.visible});window.__setLayer=v=>document.querySelector(`#layerBtns button[data-l="${v}"]`).click();window.__ctl=controls;window.__setCty=v=>document.querySelector(`#ctyBtns button[data-c="${v}"]`).click();
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+window.__flyTo=flyTo;window.__setLayer=v=>document.querySelector(`#layerBtns button[data-l="${v}"]`).click();window.__ctl=controls;window.__setCty=v=>document.querySelector(`#ctyBtns button[data-c="${v}"]`).click();
 </script>
 </body>
 </html>
