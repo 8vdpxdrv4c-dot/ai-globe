@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="data:,"><title>AI 产业链 · 中美全景地球</title>
 <style>
-:root{--gold:#ffc94a;--teal:#2ff3e0;--copper:#ff8a4c;--red:#ff3b5c;--glass:rgba(12,20,38,.42);--bd:rgba(150,200,255,.18)}
+:root{--gold:#ffc94a;--teal:#2ff3e0;--copper:#ff8a4c;--red:#ff3b5c;--glass:rgba(10,18,34,.78);--bd:rgba(150,200,255,.18)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#01030a;color:#dfe9ff;font-family:"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",system-ui,sans-serif}
 canvas{display:block}
@@ -43,13 +43,19 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
 #loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;background:#01030a;z-index:10;transition:opacity 1.2s;font-size:12px;letter-spacing:4px}
 #loader .ring{width:54px;height:54px;border-radius:50%;border:2px solid rgba(47,243,224,.15);border-top-color:var(--teal);animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
+#plbl{position:fixed;inset:0;pointer-events:none;z-index:0}
+.pl{position:absolute;left:0;top:0;text-align:center;color:#4c5768;line-height:1.05;white-space:nowrap;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 6px rgba(255,255,255,.9);will-change:transform,opacity}
+.pl .z{font-size:11px;font-weight:500}.pl .e{font-size:8.5px;letter-spacing:.3px;opacity:.85}
+.pl.t0 .z{font-size:15px;letter-spacing:4px;color:#3a4454;font-weight:600}.pl.t0 .e{font-size:9.5px;letter-spacing:2px;text-transform:uppercase}
+.pl.t1 .z{font-size:12px;letter-spacing:2px;color:#5d6878}.pl.t1 .e{font-size:8.5px;letter-spacing:1px}
+.pl.t2 .z{font-size:10.5px;color:#2e3846}.pl.t2::before{content:"";display:block;margin:0 auto 2px;width:4px;height:4px;border-radius:50%;background:#5a6576;box-shadow:0 0 0 1.5px #fff}
 #lbl{position:fixed;inset:0;pointer-events:none;z-index:0}
 #lbl svg{position:absolute;inset:0;width:100%;height:100%}
 #lbl svg circle{stroke:none}
-.cl{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;padding:5px 9px 6px;border-radius:9px;background:rgba(8,16,32,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid;border-left-width:3px;font-size:11px;line-height:1.4;max-width:210px;white-space:normal;will-change:transform,opacity;transition:background .2s;box-shadow:0 4px 18px rgba(0,0,0,.4)}
-.cl:hover{background:rgba(20,36,64,.85);z-index:5}
-.cl .c{font-size:10px;opacity:.6}.cl b{font-weight:600;font-size:12px;color:#fff}
-.cl .r{font-size:10px;opacity:.7}.cl .n{white-space:nowrap}.cl .n:hover{text-decoration:underline}
+.cl{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;padding:5px 9px 6px;border-radius:7px;background:rgba(255,255,255,.86);color:#1f2a3a;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid;border-left-width:3px;font-size:11px;line-height:1.4;max-width:210px;white-space:normal;will-change:transform,opacity;transition:background .2s;box-shadow:0 3px 12px rgba(20,40,70,.25)}
+.cl:hover{background:#fff;z-index:5}
+.cl .c{font-size:10px;color:#6b7686}.cl b{font-weight:700;font-size:12px;color:#121a26}
+.cl .r{font-size:10px}.cl .n{white-space:nowrap}.cl .n:hover{text-decoration:underline}
 #ctrl,#story,#info,#legend,#title{z-index:2}
 @media(max-width:1100px){#story{display:none}}
 </style>
@@ -84,7 +90,7 @@ button .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-r
 </div>
 <div id="story" class="glass"></div>
 <div id="info" class="glass"><div class="x" id="infoX">×</div><div id="infoBody"></div></div>
-<div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
+<div id="plbl"></div><div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
 <div id="legend" class="glass">
   <span><i style="color:var(--gold);background:var(--gold)"></i>上游 芯片/制造/系统/能源</span>
   <span><i style="color:var(--teal);background:var(--teal)"></i>中游 算力/云/模型</span>
@@ -246,46 +252,41 @@ const ll2v=(lat,lon,r=R)=>{const p=(90-lat)*Math.PI/180,t=(lon+180)*Math.PI/180;
 
 const mgr=new THREE.LoadingManager();
 const tl=new THREE.TextureLoader(mgr);
-const tex=n=>{const t=tl.load('textures/'+n);t.anisotropy=8;return t;};
-const tDay=tex('earth_atmos_2048.jpg'),tNight=tex('earth_lights_2048.png'),tNorm=tex('earth_normal_2048.jpg'),tSpec=tex('earth_specular_2048.jpg'),tCloud=tex('earth_clouds_1024.png');
-tDay.colorSpace=THREE.SRGBColorSpace;tNight.colorSpace=THREE.SRGBColorSpace;
-
-const sunDir=new THREE.Vector3(1,.25,.4).normalize();
-const earthU={uDay:{value:tDay},uNight:{value:tNight},uNorm:{value:tNorm},uSpec:{value:tSpec},uSun:{value:sunDir},uTime:{value:0}};
-const earth=new THREE.Mesh(new THREE.SphereGeometry(R,160,160),new THREE.ShaderMaterial({uniforms:earthU,
-vertexShader:`varying vec2 vUv;varying vec3 vN;varying vec3 vW;
-void main(){vUv=uv;vN=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader:`uniform sampler2D uDay,uNight,uNorm,uSpec;uniform vec3 uSun;uniform float uTime;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
+const tex=(n,srgb=true)=>{const t=tl.load('textures/'+n);t.anisotropy=renderer.capabilities.getMaxAnisotropy();if(srgb)t.colorSpace=THREE.SRGBColorSpace;return t;};
+const tMap=tex('map_8k.jpg'),tUS=tex('patch_us.jpg'),tCN=tex('patch_cn.jpg'),tH=tex('height_4k.jpg',false);
+[tUS,tCN].forEach(t=>{t.wrapS=t.wrapT=THREE.ClampToEdgeWrapping;});
+const sunDir=new THREE.Vector3(1,.5,.5).normalize();
+const earthU={uMap:{value:tMap},uUS:{value:tUS},uCN:{value:tCN},uH:{value:tH},uSun:{value:sunDir},uTime:{value:0},
+ uBoxUS:{value:new THREE.Vector4(-126,-66,24,50)},uBoxCN:{value:new THREE.Vector4(73,135,18,54)},uDisp:{value:.0035}};
+const earth=new THREE.Mesh(new THREE.SphereGeometry(R,384,192),new THREE.ShaderMaterial({uniforms:earthU,
+vertexShader:`uniform sampler2D uH;uniform float uDisp;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
+void main(){vUv=uv;vN=normalize(mat3(modelMatrix)*normal);float h=texture2D(uH,uv).r;vec3 p=position*(1.+h*uDisp);vec4 w=modelMatrix*vec4(p,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+fragmentShader:`uniform sampler2D uMap,uUS,uCN,uH;uniform vec3 uSun;uniform vec4 uBoxUS,uBoxCN;varying vec2 vUv;varying vec3 vN;varying vec3 vW;
+vec3 mapPatch(sampler2D t,vec4 b,vec3 base,float lon,float lat){vec2 p=vec2((lon-b.x)/(b.y-b.x),(lat-b.z)/(b.w-b.z));
+ vec2 e=min(p,1.-p);float m=smoothstep(0.,.03,min(e.x,e.y));if(m<=0.)return base;return mix(base,texture2D(t,p).rgb,m);}
 void main(){
- vec3 n=normalize(vN);
+ vec3 n=normalize(vN);float lon=vUv.x*360.-180.,lat=vUv.y*180.-90.;
+ vec3 c=texture2D(uMap,vUv).rgb;
+ c=mapPatch(uUS,uBoxUS,c,lon,lat);c=mapPatch(uCN,uBoxCN,c,lon,lat);
+ // hillshade from heightmap (finite differences)
+ vec2 e=vec2(1./4096.,1./2048.);
+ float hx=texture2D(uH,vUv+vec2(e.x,0.)).r-texture2D(uH,vUv-vec2(e.x,0.)).r;
+ float hy=texture2D(uH,vUv+vec2(0.,e.y)).r-texture2D(uH,vUv-vec2(0.,e.y)).r;
  vec3 t=normalize(cross(vec3(0.,1.,0.),n));vec3 b=cross(n,t);
- vec3 nm=texture2D(uNorm,vUv).xyz*2.-1.;vec3 N=normalize(t*nm.x*.6+b*nm.y*.6+n*nm.z);
- float d=dot(N,uSun);float dl=smoothstep(-.18,.28,dot(n,uSun));
- vec3 day=texture2D(uDay,vUv).rgb;day=pow(day,vec3(.95))*1.05;
- vec3 night=texture2D(uNight,vUv).rgb;
- vec3 V=normalize(cameraPosition-vW);
- float spec=pow(max(dot(reflect(-uSun,N),V),0.),28.)*texture2D(uSpec,vUv).r;
- vec3 dayC=day*(.06+max(d,0.)*.8)+vec3(.55,.75,1.)*spec*.35;
- vec3 nightC=night*vec3(1.,.78,.45)*2.4+day*.035+vec3(.0,.01,.03);
- vec3 c=mix(nightC,dayC,dl);
- float fr=pow(1.-max(dot(n,V),0.),3.);
- c+=vec3(.25,.6,1.)*fr*(.15+.5*dl);
- float term=smoothstep(.0,.15,dot(n,uSun))*smoothstep(.3,.1,dot(n,uSun));c+=vec3(1.,.4,.15)*term*.08;
+ vec3 N=normalize(n-(t*hx+b*hy)*6.);
+ float relief=dot(N,uSun)-dot(n,uSun);
+ float lam=.78+.30*max(dot(n,uSun),0.);
+ c*=lam;c*=1.+clamp(relief*1.6,-.35,.3);
+ vec3 V=normalize(cameraPosition-vW);float fr=pow(1.-max(dot(n,V),0.),2.5);
+ c=mix(c,vec3(.80,.89,.98),fr*.55);
  gl_FragColor=vec4(c,1.);
  #include <colorspace_fragment>
 }`}));
 scene.add(earth);
-
-const clouds=new THREE.Mesh(new THREE.SphereGeometry(R*1.008,128,128),new THREE.ShaderMaterial({uniforms:{uC:{value:tCloud},uSun:{value:sunDir}},transparent:true,depthWrite:false,
-vertexShader:`varying vec2 vUv;varying vec3 vN;void main(){vUv=uv;vN=normalize(mat3(modelMatrix)*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-fragmentShader:`uniform sampler2D uC;uniform vec3 uSun;varying vec2 vUv;varying vec3 vN;void main(){float a=texture2D(uC,vUv).r;float l=smoothstep(-.15,.4,dot(normalize(vN),uSun));gl_FragColor=vec4(vec3(1.)*(.05+l*.75),a*(.06+.4*l));}`}));
-scene.add(clouds);
-
-const atmo=new THREE.Mesh(new THREE.SphereGeometry(R*1.16,96,96),new THREE.ShaderMaterial({uniforms:{uSun:{value:sunDir}},side:THREE.BackSide,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,
+const atmo=new THREE.Mesh(new THREE.SphereGeometry(R*1.09,96,96),new THREE.ShaderMaterial({side:THREE.BackSide,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,
 vertexShader:`varying vec3 vN;varying vec3 vW;void main(){vN=normalize(mat3(modelMatrix)*normal);vec4 w=modelMatrix*vec4(position,1.);vW=w.xyz;gl_Position=projectionMatrix*viewMatrix*w;}`,
-fragmentShader:`uniform vec3 uSun;varying vec3 vN;varying vec3 vW;void main(){vec3 V=normalize(cameraPosition-vW);float i=pow(clamp(.72+dot(vN,V),0.,1.),4.2);float s=.35+.65*smoothstep(-.4,.6,dot(-vN,uSun)*-1.);gl_FragColor=vec4(mix(vec3(.1,.35,1.),vec3(.35,.75,1.),i)*i*.9*(.45+s),i*.8);}`}));
+fragmentShader:`varying vec3 vN;varying vec3 vW;void main(){vec3 V=normalize(cameraPosition-vW);float i=pow(clamp(.62+dot(vN,V),0.,1.),5.);gl_FragColor=vec4(vec3(.45,.7,1.)*i*.55,i);}`}));
 scene.add(atmo);
-
 // stars
 {const N=9000,p=new Float32Array(N*3),c=new Float32Array(N*3),s=new Float32Array(N);
 for(let i=0;i<N;i++){const v=new THREE.Vector3().randomDirection().multiplyScalar(40+Math.random()*60);p.set([v.x,v.y,v.z],i*3);const k=Math.random();const col=new THREE.Color().setHSL(.55+k*.15-(k>.85?.5:0),.5,.75+Math.random()*.25);c.set([col.r,col.g,col.b],i*3);s[i]=Math.random();}
@@ -298,13 +299,13 @@ scene.add(new THREE.Points(g,m));}
 // ================= MARKERS =================
 const markerGroup=new THREE.Group();scene.add(markerGroup);
 const pillarGeo=new THREE.CylinderGeometry(.0016,.0035,1,8,1,true);pillarGeo.translate(0,.5,0);pillarGeo.rotateX(Math.PI/2);
-const pillarMat=c=>new THREE.ShaderMaterial({uniforms:{uC:{value:c},uTime:earthU.uTime,uPhase:{value:Math.random()*6.28},uHi:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+const pillarMat=c=>new THREE.ShaderMaterial({uniforms:{uC:{value:c},uTime:earthU.uTime,uPhase:{value:Math.random()*6.28},uHi:{value:0}},transparent:true,depthWrite:false,blending:THREE.NormalBlending,
 vertexShader:`varying float vH;void main(){vH=position.z;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-fragmentShader:`uniform vec3 uC;uniform float uTime,uPhase,uHi;varying float vH;void main(){float pulse=fract(vH*2.-uTime*.8-uPhase);float band=smoothstep(.9,1.,pulse)*.9;float a=(1.-vH)*(1.-vH)*(.75+band)+band*.3;gl_FragColor=vec4(uC*(1.6+uHi*1.5),a*(.85+uHi*.15));}`});
+fragmentShader:`uniform vec3 uC;uniform float uTime,uPhase,uHi;varying float vH;void main(){float pulse=fract(vH*2.-uTime*.8-uPhase);float band=smoothstep(.9,1.,pulse)*.9;float a=(1.-vH)*(1.-vH)*(.75+band)+band*.3;gl_FragColor=vec4(uC*(.85+uHi*.4),min(1.,a*(.9+uHi*.1)));}`});
 const ringGeo=new THREE.PlaneGeometry(1,1);
-const ringMat=c=>new THREE.ShaderMaterial({uniforms:{uC:{value:c},uTime:earthU.uTime,uPhase:{value:Math.random()*6.28},uHi:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+const ringMat=c=>new THREE.ShaderMaterial({uniforms:{uC:{value:c},uTime:earthU.uTime,uPhase:{value:Math.random()*6.28},uHi:{value:0}},transparent:true,depthWrite:false,blending:THREE.NormalBlending,side:THREE.DoubleSide,
 vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-fragmentShader:`uniform vec3 uC;uniform float uTime,uPhase,uHi;varying vec2 vUv;void main(){float d=length(vUv-.5)*2.;float t=fract(uTime*.6+uPhase/6.28);float ring=smoothstep(.08,0.,abs(d-t))*(1.-t);float core=smoothstep(.28,.0,d);gl_FragColor=vec4(uC*(1.5+uHi),(ring*.9+core)*(1.+uHi));}`});
+fragmentShader:`uniform vec3 uC;uniform float uTime,uPhase,uHi;varying vec2 vUv;void main(){float d=length(vUv-.5)*2.;float t=fract(uTime*.6+uPhase/6.28);float ring=smoothstep(.08,0.,abs(d-t))*(1.-t);float core=smoothstep(.28,.0,d);gl_FragColor=vec4(uC*.8,min(1.,(ring*.8+core)*(1.+uHi)));}`});
 const headGeo=new THREE.SphereGeometry(1,12,12);
 const markers=[];const byId={};
 D.forEach(r=>{const [id,cn,en,city,lat,lon,layer,cty,role,desc]=r;
@@ -329,14 +330,14 @@ ARCS.forEach(([a,b],i)=>{const A=byId[a],B=byId[b];if(!A||!B)return;
  const mid=pa.clone().add(pb).multiplyScalar(.5).normalize().multiplyScalar(R*(1+Math.max(dist*.55,.025)));
  const curve=new THREE.QuadraticBezierCurve3(pa,mid,pb);
  const geo=new THREE.TubeGeometry(curve,Math.max(24,Math.round(dist*200)),Math.min(.0022,.0008+dist*.003),5,false);
- const m=new THREE.ShaderMaterial({uniforms:{uA:{value:A.color},uB:{value:B.color},uTime:earthU.uTime,uOff:{value:Math.random()},uSpd:{value:.25+Math.random()*.15},uOp:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+ const m=new THREE.ShaderMaterial({uniforms:{uA:{value:A.color},uB:{value:B.color},uTime:earthU.uTime,uOff:{value:Math.random()},uSpd:{value:.25+Math.random()*.15},uOp:{value:0}},transparent:true,depthWrite:false,blending:THREE.NormalBlending,
  vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
- fragmentShader:`uniform vec3 uA,uB;uniform float uTime,uOff,uSpd,uOp;varying vec2 vUv;void main(){float x=vUv.x;float h=fract(uTime*uSpd+uOff);float head=smoothstep(.22,0.,h-x)*step(x,h);float h2=fract(h+.5);float head2=smoothstep(.22,0.,h2-x)*step(x,h2);vec3 c=mix(uA,uB,x);float a=.13+pow(head,3.)*1.2+pow(head2,3.)*.6;gl_FragColor=vec4(c*(1.+pow(max(head,head2),6.)*2.5),a*uOp);}`});
+ fragmentShader:`uniform vec3 uA,uB;uniform float uTime,uOff,uSpd,uOp;varying vec2 vUv;void main(){float x=vUv.x;float h=fract(uTime*uSpd+uOff);float head=smoothstep(.22,0.,h-x)*step(x,h);float h2=fract(h+.5);float head2=smoothstep(.22,0.,h2-x)*step(x,h2);vec3 c=mix(uA,uB,x);float a=.35+pow(head,3.)*.65+pow(head2,3.)*.4;gl_FragColor=vec4(c*(.7+pow(max(head,head2),6.)*.5),min(1.,a)*uOp);}`});
  const mesh=new THREE.Mesh(geo,m);arcGroup.add(mesh);arcs.push({A,B,mesh,m,op:0});});
 
 // ================= POST =================
 const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));
-const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.7,.45,.82);composer.addPass(bloom);composer.addPass(new OutputPass());
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.35,.4,.97);composer.addPass(bloom);composer.addPass(new OutputPass());
 
 // ================= UI =================
 let fLayer='all',fCty='all',showArcs=true;
@@ -397,13 +398,13 @@ const groups=[];{const m=new Map();markers.forEach(o=>{if(!m.has(o.city))m.set(o
   const g={city,ms,n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
   el.addEventListener('click',e=>{const t=e.target.closest('[data-id]');select(t?byId[t.dataset.id]:g.vis[0]);});
   groups.push(g);});}
-const hex=c=>'#'+c.getHexString();
+const hex=c=>'#'+c.getHexString();const INK={up:'#c08a10',mid:'#0e9a91',down:'#c95f28',CN:'#d62a45'};const ink=o=>o.cty==='CN'?INK.CN:INK[o.layer];
 function buildCards(){groups.forEach(g=>{g.vis=g.ms.filter(visible);if(!g.vis.length)return;
  const cnt={};g.vis.forEach(o=>cnt[o.layer]=(cnt[o.layer]||0)+1);const dom=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
- const col=g.vis[0].cty==='CN'?hex(COL.CN):hex(COL[dom]);g.col=col;
+ const col=g.vis[0].cty==='CN'?INK.CN:INK[dom];g.col=col;
  g.el.style.borderColor=col+'88';g.el.style.borderLeftColor=col;g.line.setAttribute('stroke',col);g.dot.setAttribute('fill',col);
- if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<b>${o.cn}</b> <span class="c">${o.city}</span><div class="r">${o.role}</div>`;}
- else g.el.innerHTML=`<b>${g.city.split(' ').pop()}</b> <span class="c">${g.vis.length} 家</span><div>${g.vis.map(o=>`<span class="n" data-id="${o.id}" style="color:${hex(o.color)}">${o.cn}</span>`).join('<span style="opacity:.4">、</span>')}</div>`;
+ if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<b>${o.cn}</b> <span class="c">${o.city}</span><div class="r" style="color:${ink(o)}">${o.role}</div>`;}
+ else g.el.innerHTML=`<b>${g.city.split(' ').pop()}</b> <span class="c">${g.vis.length} 家</span><div>${g.vis.map(o=>`<span class="n" data-id="${o.id}"><i style="display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:3px;vertical-align:1px;background:${ink(o)}"></i>${o.cn}</span>`).join('<span style="opacity:.4">、</span>')}</div>`;
  g.el.style.transform='none';g.el.style.display='block';g.el.style.visibility='hidden';g.w=g.el.offsetWidth;g.h=g.el.offsetHeight;g.el.style.visibility='';g.el.style.display='none';g.init=false;});}
 const _applyFilter=applyFilter;applyFilter=function(){_applyFilter();buildCards();};
 const tmp=new THREE.Vector3(),camDir=new THREE.Vector3();
@@ -438,7 +439,31 @@ function updateCards(){const W=innerWidth,H=innerHeight;const cd=camera.position
   // leader: from dot to nearest card edge point
   const ex=THREE.MathUtils.clamp(g.dx,g.x-g.sw/2,g.x+g.sw/2),ey=THREE.MathUtils.clamp(g.dy,g.y-g.sh/2,g.y+g.sh/2);
   const mx=(g.dx+ex)/2;g.line.setAttribute('d',`M${g.dx.toFixed(1)},${g.dy.toFixed(1)} L${(Math.abs(ex-g.dx)>Math.abs(ey-g.dy)?mx:g.dx).toFixed(1)},${ey.toFixed(1)} L${ex.toFixed(1)},${ey.toFixed(1)}`);
-  g.line.style.opacity=g.op*.8;});}
+  g.line.style.opacity=g.op*.8;});
+ const rects=[];groups.forEach(g=>{if(g.act){rects.push({x:g.dx,y:g.dy,w:10,h:10});if(g.keep&&g.op>.3)rects.push({x:g.x,y:g.y,w:g.sw,h:g.sh});}});updatePlaces(rects);}
+
+
+// ================= PLACE LABELS =================
+const PL=[["津巴布韦","Zimbabwe",-18.91,29.93,0,3],["赞比亚","Zambia",-14.66,26.4,0,3],["也门","Yemen",15.33,45.87,0,3],["越南","Vietnam",21.72,105.39,0,2],["委内瑞拉","Venezuela",7.18,-64.6,0,3],["瓦努阿图","Vanuatu",-15.37,166.91,0,4],["乌兹别克斯坦","Uzbekistan",41.69,64.01,0,3],["乌拉圭","Uruguay",-32.96,-55.97,0,4],["美属萨摩亚","American Samoa",-14.33,-170.75,0,4],["美国","United States",39.54,-97.48,0,2],["南乔治亚和南桑威奇群岛","S. Geo. and the Is.",-55.68,-31.06,0,4],["皮特凯恩群岛","Pitcairn Is.",-24.36,-128.32,0,4],["英国","United Kingdom",54.4,-2.12,0,2],["阿拉伯联合酋长国","United Arab Emirates",23.47,54.55,0,4],["乌克兰","Ukraine",49.72,32.14,0,3],["乌干达","Uganda",1.97,32.95,0,3],["土库曼斯坦","Turkmenistan",39.86,58.68,0,4],["土耳其","Turkey",39.35,34.51,0,2],["突尼斯","Tunisia",33.69,9.01,0,3],["汤加","Tonga",-21.21,-175.16,0,4],["泰国","Thailand",15.46,101.07,0,3],["坦桑尼亚","Tanzania",-6.05,34.96,0,3],["塔吉克斯坦","Tajikistan",38.2,72.59,0,4],["叙利亚","Syria",35.01,38.28,0,3],["瑞士","Switzerland",46.72,7.46,0,4],["瑞典","Sweden",65.86,19.02,0,3],["斯威士兰","eSwatini",-26.53,31.47,0,4],["苏里南","Suriname",4.14,-55.91,0,4],["南苏丹","S. Sudan",7.23,30.39,0,3],["苏丹","Sudan",16.33,29.26,0,3],["斯里兰卡","Sri Lanka",7.58,80.7,0,3],["西班牙","Spain",40.09,-3.46,0,2],["大韩民国","South Korea",36.38,128.13,0,2],["南非","South Africa",-29.71,23.67,0,2],["所罗门群岛","Solomon Is.",-8.03,159.17,0,3],["塞拉利昂","Sierra Leone",8.62,-11.76,0,4],["塞内加尔","Senegal",15.14,-14.78,0,3],["沙特阿拉伯","Saudi Arabia",23.81,44.7,0,2],["萨摩亚","Samoa",-13.64,-172.44,0,4],["卢旺达","Rwanda",-1.9,30.1,0,3],["俄罗斯","Russia",58.25,44.69,0,2],["罗马尼亚","Romania",45.73,24.97,0,3],["葡萄牙","Portugal",39.61,-8.27,0,2],["波兰","Poland",51.99,19.49,0,3],["菲律宾","Philippines",11.2,122.47,0,2],["秘鲁","Peru",-12.98,-72.9,0,2],["巴拉圭","Paraguay",-21.67,-60.15,0,4],["巴布亚新几内亚","Papua New Guinea",-5.7,143.91,0,2],["巴拿马","Panama",8.72,-80.35,0,4],["巴基斯坦","Pakistan",29.33,68.55,0,2],["阿曼","Oman",22.12,57.34,0,4],["挪威","Norway",61.36,9.68,0,3],["朝鲜民主主义人民共和国","North Korea",39.89,126.44,0,3],["尼日利亚","Nigeria",9.44,7.5,0,2],["尼日尔","Niger",17.45,9.5,0,3],["新西兰","New Zealand",-39.76,172.79,0,2],["纽埃","Niue",-19.05,-169.86,0,4],["库克群岛","Cook Is.",-21.22,-159.79,0,4],["尼泊尔","Nepal",28.3,83.64,0,3],["纳米比亚","Namibia",-20.58,17.11,0,3],["莫桑比克","Mozambique",-13.94,37.84,0,3],["摩洛哥","Morocco",31.65,-7.19,0,3],["蒙古国","Mongolia",46.0,104.15,0,3],["墨西哥","Mexico",23.92,-102.29,0,2],["毛里塔尼亚","Mauritania",19.59,-9.74,0,3],["马里","Mali",18.69,-2.04,0,3],["马来西亚","Malaysia",2.53,113.84,0,3],["马达加斯加","Madagascar",-18.63,46.7,0,3],["利比亚","Libya",26.64,18.01,0,3],["利比里亚","Liberia",6.45,-9.46,0,4],["老挝","Laos",19.43,102.53,0,4],["吉尔吉斯斯坦","Kyrgyzstan",41.67,74.53,0,4],["肯尼亚","Kenya",0.55,37.91,0,2],["哈萨克斯坦","Kazakhstan",49.05,68.69,0,3],["约旦","Jordan",30.81,36.38,0,4],["日本","Japan",36.14,138.44,0,2],["牙买加","Jamaica",18.14,-77.32,0,4],["意大利","Italy",44.73,11.08,0,2],["以色列","Israel",30.91,34.85,0,4],["爱尔兰","Ireland",53.08,-7.8,0,3],["伊拉克","Iraq",33.09,43.26,0,3],["伊朗","Iran",32.17,54.93,0,2],["印度尼西亚","Indonesia",-0.95,101.89,0,2],["印度","India",22.69,79.36,0,2],["冰岛","Iceland",64.78,-18.67,0,3],["圭亚那","Guyana",5.12,-58.94,0,4],["几内亚","Guinea",10.62,-10.02,0,3],["危地马拉","Guatemala",14.98,-90.5,0,3],["希腊","Greece",39.49,21.73,0,3],["加纳","Ghana",7.72,-1.04,0,3],["德国","Germany",50.96,9.68,0,2],["加蓬","Gabon",-0.44,11.84,0,4],["法国","France",46.7,2.55,0,2],["圣皮埃尔和密克隆","St. Pierre and Miquelon",47.04,-56.33,0,4],["瓦利斯和富图纳","Wallis and Futuna Is.",-14.29,-178.14,0,4],["法属波利尼西亚","Fr. Polynesia",-17.63,-149.46,0,4],["新喀里多尼亚","New Caledonia",-21.06,165.08,0,3],["芬兰","Finland",63.25,27.28,0,3],["埃塞俄比亚","Ethiopia",8.03,39.09,0,2],["厄立特里亚","Eritrea",15.79,38.29,0,4],["赤道几内亚","Eq. Guinea",2.33,8.99,0,4],["埃及","Egypt",26.19,29.45,0,2],["厄瓜多尔","Ecuador",-1.26,-78.19,0,3],["格陵兰","Greenland",74.32,-39.34,0,3],["丹麦","Denmark",55.97,9.02,0,4],["古巴","Cuba",21.33,-77.98,0,3],["科特迪瓦","Côte d'Ivoire",7.49,-5.57,0,3],["刚果民主共和国","Dem. Rep. Congo",-1.86,23.46,0,2],["刚果共和国","Congo",0.14,15.9,0,4],["哥伦比亚","Colombia",3.37,-73.17,0,2],["中国","China",32.5,106.34,0,2],["澳门","Macao",22.13,113.56,0,4],["香港","Hong Kong",22.45,114.1,0,4],["智利","Chile",-38.15,-72.32,0,2],["乍得","Chad",15.14,18.65,0,3],["中非共和国","Central African Rep.",6.99,20.91,0,4],["佛得角","Cabo Verde",15.07,-23.64,0,4],["加拿大","Canada",60.32,-101.91,0,2],["喀麦隆","Cameroon",4.59,12.47,0,3],["柬埔寨","Cambodia",12.65,104.5,0,3],["缅甸","Myanmar",21.57,95.8,0,3],["布基纳法索","Burkina Faso",12.67,-1.36,0,3],["保加利亚","Bulgaria",42.51,25.16,0,4],["巴西","Brazil",-12.1,-49.56,0,2],["博茨瓦纳","Botswana",-22.1,24.18,0,4],["玻利维亚","Bolivia",-16.67,-64.59,0,3],["比利时","Belgium",50.79,4.8,0,2],["白俄罗斯","Belarus",53.82,28.42,0,4],["孟加拉国","Bangladesh",24.21,89.68,0,3],["巴林","Bahrain",26.06,50.55,0,4],["巴哈马","Bahamas",26.4,-77.15,0,4],["奥地利","Austria",47.52,14.13,0,4],["澳大利亚","Australia",-24.13,134.05,0,2],["阿根廷","Argentina",-33.5,-64.17,0,2],["安哥拉","Angola",-12.18,17.98,0,3],["阿尔及利亚","Algeria",27.4,2.81,0,3],["阿富汗","Afghanistan",34.16,66.5,0,3],["南极洲","Antarctica",-79.84,35.89,0,4],["新疆","Xinjiang",41.12,85.43,1,5],["西藏","Xizang",31.45,88.41,1,5],["内蒙古","Inner Mongolia",41.59,111.62,1,5],["甘肃","Gansu",38.74,100.73,1,5],["云南","Yunnan",24.46,101.66,1,5],["黑龙江","Heilongjiang",46.85,127.97,1,5],["吉林","Jilin",43.3,126.47,1,5],["辽宁","Liaoning",41.39,123.07,1,5],["广西","Guangxi",23.75,108.76,1,5],["华盛顿州","Washington",47.49,-120.36,1,5],["爱达荷州","Idaho",43.78,-114.13,1,5],["蒙大拿州","Montana",47.0,-110.04,1,5],["北达科他州","North Dakota",47.47,-100.3,1,5],["明尼苏达州","Minnesota",46.06,-93.36,1,5],["密歇根州","Michigan",43.43,-84.95,1,5],["俄亥俄州","Ohio",40.09,-82.67,1,5],["宾夕法尼亚州","Pennsylvania",40.86,-77.61,1,5],["纽约州","New York",43.2,-75.32,1,5],["佛蒙特州","Vermont",44.09,-72.73,1,5],["新罕布什尔州","New Hampshire",43.6,-71.63,1,5],["缅因州","Maine",45.15,-69.2,1,5],["亚利桑那州","Arizona",34.3,-111.94,1,5],["加利福尼亚州","California",36.75,-119.59,1,5],["新墨西哥州","New Mexico",34.5,-106.02,1,5],["得克萨斯州","Texas",31.13,-98.76,1,5],["阿拉斯加州","Alaska",65.36,-151.6,1,5],["广东","Guangdong",23.79,113.72,1,5],["海南","Hainan",19.19,109.83,1,5],["福建","Fujian",26.41,118.18,1,5],["路易斯安那州","Louisiana",30.53,-92.0,1,5],["密西西比州","Mississippi",32.87,-89.72,1,5],["亚拉巴马州","Alabama",32.86,-86.72,1,5],["佛罗里达州","Florida",28.16,-81.62,1,5],["佐治亚州","Georgia",32.85,-83.41,1,5],["南卡罗来纳州","South Carolina",33.86,-80.65,1,5],["北卡罗来纳州","North Carolina",35.62,-78.87,1,5],["弗吉尼亚州","Virginia",37.74,-78.24,1,5],["华盛顿哥伦比亚特区","District of Columbia",38.89,-77.01,1,5],["马里兰州","Maryland",39.39,-77.05,1,5],["特拉华州","Delaware",38.87,-75.41,1,5],["新泽西州","New Jersey",40.04,-74.47,1,5],["康涅狄格州","Connecticut",41.65,-72.76,1,5],["罗得岛州","Rhode Island",41.62,-71.51,1,5],["马萨诸塞州","Massachusetts",42.37,-72.0,1,5],["浙江","Zhejiang",29.11,119.97,1,5],["上海","Shanghai",31.09,121.41,1,5],["江苏","Jiangsu",32.98,119.94,1,5],["俄勒冈州","Oregon",43.83,-120.39,1,5],["山东","Shandong",36.33,118.11,1,5],["河北","Hebei",38.52,115.31,1,5],["天津","Tianjin",39.37,117.35,1,5],["夏威夷州","Hawaii",21.49,-158.0,1,5],["西沙群岛","Paracel Islands",15.78,111.2,1,5],["犹他州","Utah",39.5,-111.54,1,5],["怀俄明州","Wyoming",43.0,-107.55,1,5],["内华达州","Nevada",39.43,-117.02,1,5],["科罗拉多州","Colorado",39.0,-105.54,1,5],["南达科他州","South Dakota",44.47,-100.25,1,5],["內布拉斯加州","Nebraska",41.5,-99.69,1,5],["堪萨斯州","Kansas",38.5,-98.33,1,5],["俄克拉荷马州","Oklahoma",35.45,-97.13,1,5],["艾奥瓦州","Iowa",42.04,-93.39,1,5],["密苏里州","Missouri",38.55,-92.45,1,5],["北京","Beijing",39.95,116.39,1,5],["四川","Sichuan",30.54,102.38,1,5],["重庆","Chongqing",30.02,107.73,1,5],["贵州","Guizhou",26.8,106.56,1,5],["湖南","Hunan",27.67,111.71,1,5],["宁夏","Ningxia",37.18,106.04,1,5],["陕西","Shaanxi",33.77,108.36,1,5],["青海","Qinghai",35.27,96.24,1,5],["山西","Shanxi",37.76,112.39,1,5],["江西","Jiangxi",27.64,116.02,1,5],["河南","Henan",33.91,113.48,1,5],["湖北","Hubei",30.99,112.26,1,5],["安徽","Anhui",31.95,117.25,1,5],["威斯康星州","Wisconsin",44.37,-89.58,1,5],["伊利诺伊州","Illinois",39.95,-89.2,1,5],["肯塔基州","Kentucky",37.4,-85.57,1,5],["阿肯色州","Arkansas",34.76,-92.14,1,5],["田纳西州","Tennessee",35.75,-86.34,1,5],["西維吉尼亞州","West Virginia",38.64,-80.71,1,5],["印第安纳州","Indiana",39.89,-86.14,1,5],["台湾","Taiwan",23.7,121.0,1,5],["旧金山","San Francisco",37.77,-122.42,2,6],["圣何塞","San Jose",37.34,-121.89,2,6],["奥克兰","Oakland",37.8,-122.27,2,6],["帕洛阿尔托","Palo Alto",37.44,-122.14,2,6],["弗里蒙特","Fremont",37.55,-121.99,2,6],["洛杉矶","Los Angeles",34.05,-118.24,2,6],["圣迭戈","San Diego",32.72,-117.16,2,6],["西雅图","Seattle",47.61,-122.33,2,6],["波特兰","Portland",45.52,-122.68,2,6],["凤凰城","Phoenix",33.45,-112.07,2,6],["丹佛","Denver",39.74,-104.99,2,6],["盐湖城","Salt Lake City",40.76,-111.89,2,6],["达拉斯","Dallas",32.78,-96.8,2,6],["休斯敦","Houston",29.76,-95.37,2,6],["奥斯汀","Austin",30.27,-97.74,2,6],["芝加哥","Chicago",41.88,-87.63,2,6],["底特律","Detroit",42.33,-83.05,2,6],["纽约","New York",40.71,-74.01,2,6],["波士顿","Boston",42.36,-71.06,2,6],["华盛顿","Washington",38.91,-77.04,2,6],["费城","Philadelphia",39.95,-75.17,2,6],["匹兹堡","Pittsburgh",40.44,-80.0,2,6],["亚特兰大","Atlanta",33.75,-84.39,2,6],["迈阿密","Miami",25.76,-80.19,2,6],["哥伦布","Columbus",39.96,-83.0,2,6],["明尼阿波利斯","Minneapolis",44.98,-93.27,2,6],["博伊西","Boise",43.62,-116.2,2,6],["阿尔伯克基","Albuquerque",35.08,-106.65,2,6],["北京","Beijing",39.9,116.4,2,6],["上海","Shanghai",31.23,121.47,2,6],["深圳","Shenzhen",22.54,114.06,2,6],["广州","Guangzhou",23.13,113.26,2,6],["杭州","Hangzhou",30.27,120.15,2,6],["合肥","Hefei",31.82,117.23,2,6],["武汉","Wuhan",30.59,114.31,2,6],["天津","Tianjin",39.13,117.2,2,6],["济南","Jinan",36.65,117.0,2,6],["成都","Chengdu",30.57,104.07,2,6],["重庆","Chongqing",29.56,106.55,2,6],["西安","Xi'an",34.34,108.94,2,6],["南京","Nanjing",32.06,118.8,2,6],["贵阳","Guiyang",26.65,106.63,2,6],["中卫","Zhongwei",37.51,105.19,2,6],["乌兰察布","Ulanqab",41.0,113.13,2,6],["香港","Hong Kong",22.32,114.17,2,6],["苏州","Suzhou",31.3,120.62,2,6]];
+const plRoot=document.getElementById('plbl');
+const places=PL.map(([zh,en,lat,lon,tier,rank])=>{const el=document.createElement('div');el.className='pl t'+tier;el.innerHTML=`<div class="z">${zh}</div><div class="e">${en}</div>`;el.style.display='none';plRoot.appendChild(el);
+ return {zh,en,tier,rank,el,n:ll2v(lat,lon,1),pos:ll2v(lat,lon,R*1.003),w:0,h:0,op:0};});
+let plMeasured=false;
+function measurePlaces(){places.forEach(p=>{p.el.style.display='block';p.el.style.visibility='hidden';});places.forEach(p=>{p.w=p.el.offsetWidth;p.h=p.el.offsetHeight;});places.forEach(p=>{p.el.style.visibility='';p.el.style.display='none';});plMeasured=true;}
+places.sort((a,b)=>a.tier-b.tier||a.rank-b.rank);
+function updatePlaces(cardRects){if(!plMeasured)measurePlaces();const W=innerWidth,H=innerHeight,cd=camera.position.length();
+ const tierOn=[cd>1.45&&cd<6?1:0, cd<3.6?1:0, cd<2.3?1:0];
+ const taken=cardRects.slice();
+ places.forEach(p=>{let ok=false,x=0,y=0;
+  if(started&&introT>=1&&tierOn[p.tier]&&!(p.tier===0&&p.rank>(cd>3.2?2:4))){const face=(p.n.dot(camera.position)-1)/(cd-1);
+   if(face>.12){tmp.copy(p.pos).project(camera);x=(tmp.x+1)/2*W;y=(1-tmp.y)/2*H;
+    if(x>(W>1100?280:0)&&x<(W>1100?W-330:W)&&y>0&&y<H){ok=true;const r={x,y,w:p.w+6,h:p.h+2};
+     for(const q of taken){if(Math.abs(q.x-r.x)*2<q.w+r.w&&Math.abs(q.y-r.y)*2<q.h+r.h){ok=false;break;}}
+     if(ok)taken.push(r);p.face=face;}}}
+  p.op+=((ok?Math.min(1,(p.face-.12)*5):0)-p.op)*.2;
+  if(p.op<.02){p.el.style.display='none';return;}
+  p.el.style.display='block';p.el.style.opacity=p.op*(p.tier===1?.85:1);if(ok){p.x=x;p.y=y;}
+  p.el.style.transform=`translate(${(p.x-p.w/2).toFixed(1)}px,${(p.y-p.h/2).toFixed(1)}px)`;});}
 
 // ================= LOOP =================
 const clock=new THREE.Clock();let introT=0,started=false;
@@ -448,8 +473,7 @@ function tick(){const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTim
  if(started&&introT<1){introT=Math.min(1,introT+dt/3.5);const e=ease(introT);const p=introFrom.clone().lerp(introTo,e);
   p.applyAxisAngle(new THREE.Vector3(0,1,0),(1-e)*2.2);camera.position.copy(p);if(introT>=1){controls.autoRotate=true;}}
  if(fly){fly.t+=dt/fly.dur;const e=ease(Math.min(fly.t,1));camera.position.copy(slerpCam(fly,e));if(fly.t>=1)fly=null;}
- clouds.rotation.y+=dt*.006;
- {const cp=camera.position.clone().normalize();sunDir.copy(cp.applyAxisAngle(new THREE.Vector3(0,1,0),.95+.25*Math.sin(t*.05))).setY(cp.y*.5+.2).normalize();}
+ {const r=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0),u=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1),f=camera.position.clone().normalize();sunDir.copy(f).multiplyScalar(.75).addScaledVector(r,-.45).addScaledVector(u,.55).normalize();}
  const cd=camera.position.length();const sc=THREE.MathUtils.clamp((cd-1)/2.2,.35,1.6);
  markers.forEach((o,i)=>{const delay=started?THREE.MathUtils.clamp(introT*3-1.6-i*.004,0,1):0;
   o.vis+=(o.target*delay-o.vis)*Math.min(1,dt*6);const hi=(o===hovered||o===selected)?1:0;
