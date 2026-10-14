@@ -178,6 +178,11 @@ body.drill #story{opacity:0!important;pointer-events:none}
 .cl.cmp .ct{display:flex;margin-top:2px}
 #lbl .cl svg.pin{width:11px;height:11px}
 @media(min-width:761px){#story{left:var(--m);right:auto;top:222px;bottom:auto;width:320px;max-height:calc(100vh - 290px)}}
+#dmk{position:fixed;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.dm{position:absolute;left:0;white-space:nowrap;font-size:19px;font-weight:500;color:#fff;padding:6px 16px;border-radius:999px;background:rgba(6,18,44,.55);border:1px solid rgba(110,210,255,.35);
+ text-shadow:0 0 6px rgba(57,213,255,.9),0 0 14px rgba(57,213,255,.5);box-shadow:0 0 16px rgba(40,150,255,.25);will-change:transform;pointer-events:none}
+#dmBtn{width:38px;height:38px;border-radius:10px;font-size:15px;color:#7F9CC6;font-weight:700}#dmBtn.on{color:#fff;text-shadow:0 0 8px var(--cy);box-shadow:var(--glow),0 0 0 1px rgba(120,210,255,.6)}
+@media(max-width:760px){.dm{font-size:14px;padding:4px 11px}#dmBtn{width:34px;height:34px;font-size:13px}}
 </style>
 
 </head>
@@ -194,7 +199,7 @@ body.drill #story{opacity:0!important;pointer-events:none}
   <button data-l="mid"><i style="background:var(--mid)"></i>中游<small id="cMid"></small></button>
   <button data-l="down"><i style="background:var(--down)"></i>下游<small id="cDown"></small></button>
  </div>
- <button id="filterBtn" class="panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4.5 8h7M7 12h2"/></svg><span>筛选</span><span class="badge" id="fBadge"></span></button>
+ <button id="dmBtn" class="panel on" title="弹幕开关">弹</button><button id="filterBtn" class="panel"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M4.5 8h7M7 12h2"/></svg><span>筛选</span><span class="badge" id="fBadge"></span></button>
 </div>
 <div id="pop" class="panel">
  <h4>细分环节<span id="segClr">清除</span></h4><div id="segBtns"></div>
@@ -203,12 +208,13 @@ body.drill #story{opacity:0!important;pointer-events:none}
  <h4>显示</h4>
  <div class="sw">供应链连线<button id="arcBtn" class="on"></button></div>
  <div class="sw">自动旋转<button id="rotBtn"></button></div>
+ <div class="sw">弹幕<button id="dmSw" class="on"></button></div>
  <div class="src" id="srcNote"></div>
 </div>
 <aside id="story" class="panel fade"></aside>
 <aside id="cityPanel" class="panel"><div class="bc" id="cityBc"></div><div class="ch"><h3 id="cityTitle"></h3><button id="cityBack">‹ 返回</button></div><div class="cn" id="cityNote"></div><ul id="cityList"></ul></aside>
 <aside id="info" class="panel"><button class="x" id="infoX">×</button><div id="infoBody"></div></aside>
-<div id="plbl"></div><div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
+<div id="dmk"></div><div id="plbl"></div><div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
 <div id="stats" hidden></div>
 <script src="data.js"></script>
 <script type="importmap">
@@ -627,6 +633,16 @@ window.__settled=()=>!fly&&still>8&&introT>=1;window.__cardCheck=()=>{const vs=g
 
 
 
+// ================= DANMAKU =================
+let dmOn=true;const DM=AD.DANMAKU||[];const dmRoot=document.getElementById('dmk');let dmLast=-1;
+function dmSpawn(){if(!dmOn||!DM.length||document.hidden)return;const mob=innerWidth<760;const lanes=mob?3:4;let lane;do{lane=Math.floor(Math.random()*lanes);}while(lane===dmLast&&lanes>1);dmLast=lane;
+ const el=document.createElement('div');el.className='dm';el.textContent=DM[Math.floor(Math.random()*DM.length)];dmRoot.appendChild(el);
+ const top=mob?(.30+lane*.07):(.17+lane*.085);el.style.top=(innerHeight*top)+'px';const w=el.offsetWidth,W=innerWidth;
+ const dur=(W+w)/(mob?90:130);el.style.transform=`translateX(${W}px)`;
+ el.animate([{transform:`translateX(${W}px)`},{transform:`translateX(${-w-20}px)`}],{duration:dur*1000,easing:'linear'}).onfinish=()=>el.remove();}
+function dmLoop(){dmSpawn();setTimeout(dmLoop,6000+Math.random()*4000);}setTimeout(dmLoop,2500);
+function dmSet(v){dmOn=v;document.getElementById('dmBtn').classList.toggle('on',v);document.getElementById('dmSw').classList.toggle('on',v);if(!v)dmRoot.innerHTML='';}
+document.getElementById('dmBtn').onclick=()=>dmSet(!dmOn);document.getElementById('dmSw').onclick=()=>dmSet(!dmOn);window.__dmSpawn=dmSpawn;
 // ================= CITY DRILL-DOWN =================
 let distLabels=[];
 function enterCity(g,focus){const ms=g.ms;const prev={scope,cam:camera.position.clone(),tgt:controls.target.clone()};
