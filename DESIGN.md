@@ -1,3 +1,36 @@
+# 全球 AI 产业链 · Design Spec (v3 — "Holographic Night")
+
+> v3 replaces the light editorial palette with a dark, glowing command-center look. It follows the user's reference image. Layout, type scale and the label-placement rules below are unchanged.
+
+## Art direction (v3)
+- **Scene:** a deep navy-black field (#030814) with a faint 48 px grid, a purple and blue fbm nebula, and sparse stars. All of it is drawn by a full-screen shader inside the WebGL scene, so bloom can apply.
+- **Globe:** the map is regenerated from Natural Earth (`tools/build_dark.py`). Ocean is dark navy, land is blue-grey relief, coastlines are glowing cyan, and borders and provinces are thin cyan lines. The hillshade comes from the heightmap. A strong blue fresnel rim plus an additive atmosphere shell surround it. About 2,600 Natural Earth populated places appear as faint cyan and amber "city light" dots.
+- **Orbits:** five thin additive ellipses (cyan, blue and violet) with travelling bright heads. They fade out below a camera distance of 2.0.
+- **Arcs:** thin, additive and layer-coloured (amber up / cyan mid / rose down), each with a bright white-hot particle head.
+- **Buildings:** holographic, rendered as additive translucent cyan volumes with lit window grids and a faint ground halo ring.
+- **Bloom:** UnrealBloomPass with threshold .62 and radius .45. Strength runs from .6 at global zoom down to .22 up close.
+
+## Tokens (v3)
+| token | value |
+|---|---|
+| bg | `#030814` |
+| text | `#EAF3FF` / `#A9BCD8` / `#6F86A8` |
+| glass | `linear-gradient(160deg, rgba(18,40,84,.62), rgba(8,18,42,.58))` + 14 px blur |
+| glow border | `1px rgba(110,190,255,.28)` + `0 0 18px rgba(40,150,255,.22)` + inner glow |
+| cyan accent | `#39D5FF` |
+| layers | up `#FFC94A` · mid `#2FE6FF` · down `#FF7AA8` |
+| region bar | gradient `#16d1c5 → #39d5ff → #8f6bff → #ff4f7a` |
+
+## Components (v3)
+- **Region cards:** glass panel, white serif title with count, EN micro caps, gradient bar, then up to 3 line icons with label and count. The icon categories are 算力 / 算法 / 芯片 / 数据 / 应用, aggregated from the 23 segments.
+- **City cards:** glass with a 2 px layer-colour top edge, white text, and glowing company dots.
+- **Leaders:** thin cyan elbow lines ending in a glowing dot.
+- **Tabs:** dark pill bar. The active tab has a cyan gradient fill and an outer glow.
+- **Story stepper:** a glass panel reading "01 / 06 · 产业故事", with a cyan 展开/收起 toggle and cyan step dots.
+- **Place names:** white with a dark halo, EN subtitle in blue-grey.
+
+---
+# v2 base spec (layout, type, placement)
 # 全球 AI 产业链 · Design Spec
 
 ## 1. Art direction — "Editorial Cartography"
