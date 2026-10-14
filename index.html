@@ -97,7 +97,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .cl .e{font-size:12px;letter-spacing:.08em;color:var(--ink3);text-transform:uppercase;white-space:nowrap;margin-top:1px}
 .cl ul{list-style:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--rule)}
 .cl li{font-size:15px;color:var(--ink2);line-height:1.5;white-space:nowrap;display:flex;align-items:center;gap:6px}.cl li i{width:8px;height:8px;border-radius:50%;flex:none}
-.cl li:hover{color:var(--ink)}.cl li.more{color:var(--ink3);font-size:13px}.cl.cmp{padding:5px 10px 6px}.cl.cmp .h{font-size:15.5px}.cl.cmp ul,.cl.cmp .e,.cl.cmp .sg,.cl.cmp .bar{display:none}
+.cl li:hover{color:var(--ink)}.cl li.more{color:var(--ink3);font-size:13px}.cl.cmp{padding:5px 10px 6px}.cl.cmp .h{font-size:15.5px}.cl.cmp ul,.cl.cmp .ds,.cl.cmp .e,.cl.cmp .sg,.cl.cmp .bar{display:none}
 .cl .sg{display:inline-block;font-size:12.5px;padding:1px 6px;border-radius:4px;margin-top:5px;color:#fff}
 .cl.rg{border-top-width:3px;min-width:150px}.cl.rg .h{font-family:var(--serif);font-size:19px}
 .cl.rg .bar{display:flex;height:4px;border-radius:2px;overflow:hidden;margin-top:6px;gap:1px}
@@ -153,6 +153,27 @@ html,body{background:#030814;color:var(--ink)}
 #lsvg path{stroke:rgba(120,215,255,.75);filter:drop-shadow(0 0 2px rgba(60,190,255,.9))}#lsvg circle{fill:#bff0ff;stroke:rgba(80,200,255,.9);filter:drop-shadow(0 0 4px #39d5ff)}
 #lbl .cl svg{position:static;inset:auto;width:30px;height:30px}
 #loader{background:#030814;color:#fff}#loader i{background:rgba(110,190,255,.2)}#loader i::after{background:var(--cy)}
+
+#cityPanel{position:fixed;left:var(--m);top:215px;bottom:80px;width:320px;z-index:4;padding:14px 14px 10px;display:flex;flex-direction:column;opacity:0;transform:translateX(-20px);pointer-events:none;transition:all .35s var(--ease)}
+body.drill #cityPanel{opacity:1;transform:none;pointer-events:auto}
+body.drill #story{opacity:0!important;pointer-events:none}
+#cityPanel .bc{font-size:12px;color:#8FB4E0;letter-spacing:.04em}#cityPanel .bc a{color:#8FB4E0;cursor:pointer;text-decoration:none}#cityPanel .bc a:hover{color:#fff}#cityPanel .bc b{color:#fff;font-weight:500}
+#cityPanel .ch{display:flex;align-items:center;justify-content:space-between;margin:6px 0 4px}
+#cityPanel h3{font-family:var(--serif);font-size:24px;color:#fff;text-shadow:0 0 18px rgba(80,170,255,.4)}
+#cityBack{font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid rgba(110,200,255,.5);color:#cdefff;background:rgba(40,140,255,.15)}#cityBack:hover{box-shadow:0 0 12px rgba(60,180,255,.5)}
+#cityPanel .cn{font-size:11.5px;color:#6F86A8;margin-bottom:8px}
+#cityList{list-style:none;overflow-y:auto;flex:1;margin:0 -6px;padding:0 6px;scrollbar-width:thin}
+#cityList li{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:8px;cursor:pointer;border-bottom:1px solid rgba(110,190,255,.1)}
+#cityList li:hover,#cityList li.on{background:rgba(60,160,255,.16)}
+#cityList li i{width:9px;height:9px;border-radius:50%;flex:none;box-shadow:0 0 8px currentColor}
+#cityList li .t{flex:1;min-width:0}#cityList li b{display:block;font-size:15px;font-weight:500;color:#EAF3FF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cityList li small{font-size:11.5px;color:#7F9CC6}
+#cityList li .sg{font-size:11px;padding:2px 7px;border-radius:4px;color:#021;white-space:nowrap}
+.cl .ds{font-size:12px;color:#9fd8ff;margin-top:3px}
+.cl.hl{box-shadow:0 0 0 2px #7fe3ff,0 0 30px rgba(60,200,255,.8)!important;z-index:9}
+.pl.dl .z{color:#9fe6ff;font-size:13px;letter-spacing:.08em}.pl.dl::before{display:none}
+@media(max-width:760px){#cityPanel{left:0;right:0;top:auto;bottom:0;width:auto;max-height:30vh;border-radius:16px 16px 0 0;transform:translateY(20px)}body.drill #title{opacity:0!important}.cl.cmp{max-width:178px}.cl.cmp .h{overflow:hidden;text-overflow:ellipsis}
+ body.drill #flyBtns,body.drill #dock{opacity:0!important;pointer-events:none}#cityPanel h3{font-size:20px}}
 </style>
 
 </head>
@@ -181,6 +202,7 @@ html,body{background:#030814;color:var(--ink)}
  <div class="src" id="srcNote"></div>
 </div>
 <aside id="story" class="panel fade"></aside>
+<aside id="cityPanel" class="panel"><div class="bc" id="cityBc"></div><div class="ch"><h3 id="cityTitle"></h3><button id="cityBack">‹ 返回</button></div><div class="cn" id="cityNote"></div><ul id="cityList"></ul></aside>
 <aside id="info" class="panel"><button class="x" id="infoX">×</button><div id="infoBody"></div></aside>
 <div id="plbl"></div><div id="lbl"><svg id="lsvg"></svg></div><div id="label"></div>
 <div id="stats" hidden></div>
@@ -245,7 +267,8 @@ void main(){
  vec3 N=normalize(n-(t*hx+b*hy)*6.);
  float relief=dot(N,uSun)-dot(n,uSun);
  float lam=.95+.45*max(dot(n,uSun),0.);
- c*=lam*1.15;c=mix(c,c*vec3(.7,.75,.85),uClose);c*=1.+clamp(relief*2.2,-.45,.5);
+ c*=lam*1.15;c=mix(c,c*vec3(.7,.75,.85),uClose);
+ {vec2 q=vec2(lon,lat)*40.;vec2 fw=fwidth(q);vec2 l=1.-smoothstep(vec2(0.),fw*1.2,abs(fract(q+.5)-.5));vec2 q2=vec2(lon,lat)*200.;vec2 fw2=fwidth(q2);vec2 l2=1.-smoothstep(vec2(0.),fw2*1.,abs(fract(q2+.5)-.5));float gk=uClose*uClose;c+=vec3(.08,.32,.6)*max(l.x,l.y)*.14*gk+vec3(.05,.2,.4)*max(l2.x,l2.y)*.05*gk*smoothstep(.02,.08,1./max(fw2.x,1e-4)*.01);}c*=1.+clamp(relief*2.2,-.45,.5);
  vec3 V=normalize(cameraPosition-vW);float fr=pow(1.-max(dot(n,V),0.),2.5);
  c+=vec3(.08,.32,.9)*fr*.75+vec3(.05,.2,.5)*fr*fr*.8;
  gl_FragColor=vec4(c,1.);
@@ -334,7 +357,7 @@ ARCS.forEach(([a,b],i)=>{const A=byId[a],B=byId[b];if(!A||!B)return;
 let fLayer='all',fCty='all',showArcs=true;
 let scope='globe';const SCOPE={us:o=>o.cty==='US',bay:o=>o.cty==='US'&&o.lat>36.8&&o.lat<38.2&&o.lon>-122.8&&o.lon<-121.5,cn:o=>o.cty==='CN',
  yrd:o=>o.cty==='CN'&&/^(上海|江苏|浙江|安徽)/.test(o.city),prd:o=>o.cty==='CN'&&/^(广东|香港|澳门)/.test(o.city),tw:o=>o.cty==='TW',sea:o=>o.cty==='SEA',jk:o=>o.cty==='JK',eu:o=>o.cty==='EU',me:o=>o.cty==='ME'};
-const inScope=o=>!SCOPE[scope]||SCOPE[scope](o);
+let drill=null;const inScope=o=>(!SCOPE[scope]||SCOPE[scope](o))&&(!drill||o.city===drill.city);
 const SC2CTY={globe:'all',us:'US',bay:'US',cn:'CN',yrd:'CN',prd:'CN',tw:'TW',sea:'SEA',jk:'JK',eu:'EU',me:'ME'};
 function setScope(k){scope=k;fCty=SC2CTY[k]||'all';document.querySelectorAll('#ctyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.c===fCty));document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));if(typeof applyFilter==='function')applyFilter();}
 let fSeg=new Set();const visibleBase=o=>(fLayer==='all'||o.layer===fLayer)&&(fCty==='all'||o.cty===fCty)&&(!fSeg.size||fSeg.has(o.seg));const visible=o=>visibleBase(o)&&inScope(o);const _unused=o=>(fLayer==='all'||o.layer===fLayer)&&(fCty==='all'||o.cty===fCty)&&(!fSeg.size||fSeg.has(o.seg));
@@ -360,7 +383,7 @@ const arcBtn=document.getElementById('arcBtn');arcBtn.onclick=()=>{showArcs=!sho
 const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.6,.45,.62);composer.addPass(bloom);composer.addPass(new OutputPass());
 const PRESETS={globe:[28,85,3.6],us:[38.5,-97,2.7],bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],cn:[29.5,113.5,.95,38],yrd:[30.6,120.3,.16,45],prd:[22.6,113.9,.09,45],tw:[23.6,120.8,.13,40],sea:[8,104,.75,30],jk:[34.5,133,.42,38],eu:[49,7,.55,38],me:[27,47,.9,30]};
 let fly=null;
-function flyTo(k,latlon){if(k&&!latlon&&PRESETS[k]&&k!==scope)setScope(k);if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));let [lat,lon,d,tilt=0]=latlon||PRESETS[k];if(innerWidth<innerHeight)d=tilt?d*1.5:1+(d-1)*1.9;const from=camera.position.clone();let to,tgt;
+function flyTo(k,latlon){if(k&&!latlon&&drill&&!flyTo._keep)leaveCity(true);if(k&&!latlon&&PRESETS[k]&&k!==scope)setScope(k);if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));let [lat,lon,d,tilt=0]=latlon||PRESETS[k];if(innerWidth<innerHeight)d=tilt?d*1.5:1+(d-1)*1.9;const from=camera.position.clone();let to,tgt;
  if(tilt){tgt=ll2v(lat,lon,R);const n=tgt.clone().normalize();const east=new THREE.Vector3(0,1,0).cross(n).normalize();const north=n.clone().cross(east);
   const tr=tilt*Math.PI/180;to=tgt.clone().addScaledVector(n,Math.cos(tr)*d).addScaledVector(north,-Math.sin(tr)*d);}
  else{to=ll2v(lat,lon,d);tgt=new THREE.Vector3();}
@@ -419,8 +442,17 @@ const groups=[];{const m=new Map();markers.forEach(o=>{if(!m.has(o.city))m.set(o
   const line=document.createElementNS(NS,'path');line.setAttribute('fill','none');line.setAttribute('stroke-width','1');svg.appendChild(line);
   const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','3');dot.setAttribute('fill','#fff');dot.setAttribute('stroke-width','1.6');svg.appendChild(dot);
   const g={city,ms,n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
-  el.addEventListener('click',e=>{const t=e.target.closest('[data-id]');select(t?byId[t.dataset.id]:g.vis[0]);});
-  groups.push(g);});}
+  el.addEventListener('click',e=>{const t=e.target.closest('[data-id]');if(g.comp){select(g.ms[0]);return;}if(g.vis.length>1){enterCity(g,t?byId[t.dataset.id]:null);return;}select(t?byId[t.dataset.id]:g.vis[0]);});
+  groups.push(g);});
+ // company-level groups for city drill-down
+ const DIST=AD.dist||{};m.forEach((ms,city)=>{if(ms.length<2)return;const c0=ms[0];ms.forEach((o,k)=>{let d=DIST[o.id];
+   if(!d){const a=k/ms.length*Math.PI*2+.6,r=.012+.006*(k%3);d=[c0.lat+Math.sin(a)*r,c0.lon+Math.cos(a)*r/Math.cos(c0.lat*Math.PI/180),'',1];}
+   o.dlat=d[0];o.dlon=d[1];o.dist=d[2];o.dapprox=!!d[3];const n=ll2v(d[0],d[1],1).normalize();
+   const el=document.createElement('div');el.className='cl';lblRoot.appendChild(el);
+   const line=document.createElementNS(NS,'path');line.setAttribute('fill','none');line.setAttribute('stroke-width','1');svg.appendChild(line);
+   const dot=document.createElementNS(NS,'circle');dot.setAttribute('r','3');dot.setAttribute('stroke-width','1.6');svg.appendChild(dot);
+   const g={city:o.cn,cityKey:city,comp:true,ms:[o],n,pos:n.clone().multiplyScalar(R*1.002),el,line,dot,x:0,y:0,w:0,h:0,init:false,op:0,vis:[]};
+   el.addEventListener('click',()=>select(o));groups.push(g);});});}
 function addRegionGroups(){Object.keys(REG).forEach(rg=>{const ms=markers.filter(o=>o.cty===rg);const n=new THREE.Vector3();ms.forEach(o=>n.add(o.pos));n.normalize();
  const el=document.createElement('div');el.className='cl rg';lblRoot.appendChild(el);
  const line=document.createElementNS(NS,'path');line.setAttribute('fill','none');line.setAttribute('stroke-width','1');svg.appendChild(line);
@@ -431,13 +463,13 @@ function addRegionGroups(){Object.keys(REG).forEach(rg=>{const ms=markers.filter
 const CITY_EN={"加州 圣克拉拉": "Santa Clara", "加州 帕洛阿尔托": "Palo Alto", "加州 桑尼维尔": "Sunnyvale", "加州 圣何塞": "San Jose", "加州 旧金山": "San Francisco", "加州 山景城": "Mountain View", "加州 门洛帕克": "Menlo Park", "加州 库比蒂诺": "Cupertino", "加州 弗里蒙特": "Fremont", "加州 米尔皮塔斯": "Milpitas", "华盛顿 西雅图": "Seattle", "华盛顿 雷德蒙德": "Redmond", "得州 奥斯汀": "Austin", "亚利桑那 凤凰城": "Phoenix", "亚利桑那 钱德勒": "Chandler", "纽约州 纽约市": "New York", "弗吉尼亚 阿什本": "Ashburn", "俄亥俄 哥伦布": "Columbus", "广东 深圳": "Shenzhen", "北京": "Beijing", "北京 亦庄": "Yizhuang, Beijing", "上海": "Shanghai", "浙江 杭州": "Hangzhou", "安徽 合肥": "Hefei", "湖北 武汉": "Wuhan", "江苏 苏州": "Suzhou", "江苏 无锡": "Wuxi", "江苏 昆山": "Kunshan", "广东 东莞": "Dongguan", "广东 广州": "Guangzhou", "广东 惠州": "Huizhou", "四川 成都": "Chengdu", "天津": "Tianjin", "贵州 贵安": "Gui'an", "台湾 新竹": "Hsinchu", "台湾 台中": "Taichung", "台湾 台南": "Tainan", "台湾 高雄": "Kaohsiung", "台湾 台北": "Taipei", "台湾 桃园": "Taoyuan", "台湾 新北": "New Taipei", "马来西亚 槟城": "Penang", "泰国 大城府": "Ayutthaya", "泰国 巴真府": "Prachinburi", "泰国 春武里": "Chonburi", "越南 北江": "Bac Giang", "新加坡 兀兰": "Woodlands, Singapore", "日本 东京": "Tokyo", "韩国 平泽": "Pyeongtaek", "韩国 利川": "Icheon", "德国 德累斯顿": "Dresden", "荷兰 费尔德霍芬": "Veldhoven", "英国 伦敦": "London", "法国 巴黎": "Paris", "阿联酋 阿布扎比": "Abu Dhabi"};const REGEN={"US": ["美国", "United States", "us"], "CN": ["中国大陆", "Mainland China", "cn"], "TW": ["台湾", "Taiwan", "tw"], "SEA": ["东南亚 / 南亚", "Southeast & South Asia", "sea"], "JK": ["日本 · 韩国", "Japan & Korea", "jk"], "EU": ["欧洲", "Europe", "eu"], "ME": ["中东 / 以色列", "Middle East", "me"]};
 const ICONS={"算力": "<svg width=\"30\" height=\"30\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><rect x=\"6\" y=\"5\" width=\"20\" height=\"6\" rx=\"1.5\"/><rect x=\"6\" y=\"13\" width=\"20\" height=\"6\" rx=\"1.5\"/><rect x=\"6\" y=\"21\" width=\"20\" height=\"6\" rx=\"1.5\"/><circle cx=\"10\" cy=\"8\" r=\".8\" fill=\"currentColor\"/><circle cx=\"10\" cy=\"16\" r=\".8\" fill=\"currentColor\"/><circle cx=\"10\" cy=\"24\" r=\".8\" fill=\"currentColor\"/><path d=\"M15 8h7M15 16h7M15 24h7\"/></svg>", "算法": "<svg width=\"30\" height=\"30\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><circle cx=\"16\" cy=\"7\" r=\"3\"/><circle cx=\"7\" cy=\"24\" r=\"3\"/><circle cx=\"25\" cy=\"24\" r=\"3\"/><circle cx=\"16\" cy=\"18\" r=\"2.2\"/><path d=\"M16 10v5.8M14.3 19.4 9.3 22M17.7 19.4l5 2.6M9.6 22.3 14 9.6M22.4 22.3 18 9.6\"/></svg>", "芯片": "<svg width=\"30\" height=\"30\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><rect x=\"8\" y=\"8\" width=\"16\" height=\"16\" rx=\"2\"/><rect x=\"12.5\" y=\"12.5\" width=\"7\" height=\"7\" rx=\"1\"/><path d=\"M12 4v4M16 4v4M20 4v4M12 24v4M16 24v4M20 24v4M4 12h4M4 16h4M4 20h4M24 12h4M24 16h4M24 20h4\"/></svg>", "数据": "<svg width=\"30\" height=\"30\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><ellipse cx=\"16\" cy=\"7.5\" rx=\"9\" ry=\"3.5\"/><path d=\"M7 7.5v17c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5v-17M7 13.2c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5M7 18.9c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5\"/></svg>", "应用": "<svg width=\"30\" height=\"30\" viewBox=\"0 0 32 32\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><rect x=\"5\" y=\"5\" width=\"9\" height=\"9\" rx=\"2.5\"/><rect x=\"18\" y=\"5\" width=\"9\" height=\"9\" rx=\"2.5\"/><rect x=\"5\" y=\"18\" width=\"9\" height=\"9\" rx=\"2.5\"/><circle cx=\"22.5\" cy=\"22.5\" r=\"4.5\"/></svg>"};const CAT={"dc": "算力", "cloud": "算力", "server": "算力", "power": "算力", "net": "算力", "optic": "算力", "model": "算法", "ent": "应用", "data": "数据", "design": "芯片", "eda": "芯片", "equip": "芯片", "mat": "芯片", "foundry": "芯片", "mem": "芯片", "pkg": "芯片", "pcb": "芯片", "auto": "应用", "robot": "应用", "device": "应用", "med": "应用", "ind": "应用", "def": "应用"};
 const hex=c=>'#'+c.getHexString();const INK={up:'#FFC94A',mid:'#2FE6FF',down:'#FF7AA8',CN:'#ff3b5c'};const ink=o=>INK[o.layer];
-function buildCards(){groups.forEach(g=>{g.vis=g.rg?markers.filter(o=>o.cty===g.rg&&visible(o)):g.ms.filter(visible);if(!g.vis.length)return;
+function buildCards(){groups.forEach(g=>{g.vis=g.rg?markers.filter(o=>o.cty===g.rg&&visible(o)):g.comp?(drill&&drill.city===g.cityKey?g.ms.filter(visible):[]):(drill?[]:g.ms.filter(visible));if(!g.vis.length)return;
  const cnt={};g.vis.forEach(o=>cnt[o.layer]=(cnt[o.layer]||0)+1);const dom=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
  const col=INK[dom];g.col=col;g.el.style.borderTopColor=col;g.line.setAttribute('stroke',col);g.dot.setAttribute('stroke',col);
  const li=o=>`<li data-id="${o.id}"><i style="background:${ink(o)}"></i>${o.cn}</li>`;
  if(g.rg){const R2=REGEN[g.rg];const cc={};g.vis.forEach(o=>{const k=CAT[o.seg]||'应用';cc[k]=(cc[k]||0)+1;});const top=Object.entries(cc).sort((a,b)=>b[1]-a[1]).slice(0,3);g.el.style.borderTopColor='rgba(110,200,255,.4)';
   g.el.innerHTML=`<div class="h">${R2[0]}<small>${g.vis.length} 处</small></div><div class="e">${R2[1]}</div><div class="gbar"></div><div class="ic">${top.map(([k,n])=>`<div>${ICONS[k]}<span>${k}</span><small>${n}</small></div>`).join('')}</div>`;}
- else if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<div class="h">${o.cn}</div><div class="e">${o.en}</div><span class="sg" style="background:${ink(o)}">${o.role}</span>`;}
+ else if(g.vis.length===1){const o=g.vis[0];g.el.innerHTML=`<div class="h">${o.cn}</div><div class="e">${o.en}</div>${g.comp&&o.dist?`<div class="ds">${o.dapprox?'≈ ':''}${o.dist}</div>`:''}<span class="sg" style="background:${ink(o)}">${o.role}</span>`;}
  else{const nm=g.city.split(' ').slice(1).join(' ')||g.city;
   g.el.innerHTML=`<div class="h">${nm}<small>${g.vis.length} 家</small></div><div class="e">${CITY_EN[g.city]||''}</div><ul>${g.vis.slice(0,5).map(li).join('')}${g.vis.length>5?`<li class="more">+ ${g.vis.length-5} 家</li>`:''}</ul>`;}
  g.el.style.transform='none';g.el.style.display='block';g.el.style.visibility='hidden';g.el.classList.remove('cmp');g.w=g.el.offsetWidth;g.h=g.el.offsetHeight;g.el.classList.add('cmp');g.cw=g.el.offsetWidth;g.ch=g.el.offsetHeight;g.el.style.visibility='';g.el.style.display='none';g.init=false;g.pl=null;layoutDirty=true;});}
@@ -486,7 +518,7 @@ const BUILD={
   [[.68,.45],[.68,.25]].forEach(([x,y])=>cyl(x,y,.05,.1,GREY,2,8));box(-.7,.5,.12,.12,.25,PASTEL,1);trees(R,9,.85,1.05);},
  factory:R=>{shed(0,.05,.9,.55,.12,5);box(-.2,-.45,.4,.2,.2,PASTEL,1);cyl(.4,-.42,.03,.4,PASTEL,2,8);trees(R,10,.75,1);},
 };
-const btype={};groups.forEach((g,i)=>{let nn=9;groups.forEach(h=>{if(h!==g)nn=Math.min(nn,g.n.distanceTo(h.n));});curMR=Math.max(nn*.9,.0009);g.mr=curMR;const t=bType(g);btype[g.city]=t;g.btype=t;curA=g.n.clone().multiplyScalar(R*1.0012);curG=i;
+const btype={};groups.forEach((g,i)=>{let nn=9;groups.forEach(h=>{if(h!==g&&!!h.comp===!!g.comp)nn=Math.min(nn,g.n.distanceTo(h.n));});curMR=Math.max(nn*(g.comp?.45:.9),g.comp?.0004:.0009);g.mr=curMR;const t=bType(g);btype[g.city]=t;g.btype=t;curA=g.n.clone().multiplyScalar(R*1.0012);curG=i;
  const ms=g.ms;const cnt={};ms.forEach(o=>{const k=o.layer;cnt[k]=(cnt[k]||0)+1;});const k=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0];
  curAcc=new THREE.Color(INK[k]);const Rr=rng([...g.city].reduce((a,c)=>a*31+c.charCodeAt(0),7));BUILD[t](Rr);
  SP.push(0,0,0);SMR.push(curMR);SA.push(curA.x,curA.y,curA.z);SG.push(i);});
@@ -494,8 +526,8 @@ const bGeo=new THREE.BufferGeometry();
 bGeo.setAttribute('position',new THREE.Float32BufferAttribute(P,3));bGeo.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));
 bGeo.setAttribute('col',new THREE.Float32BufferAttribute(C,3));bGeo.setAttribute('flag',new THREE.Float32BufferAttribute(F,1));
 bGeo.setAttribute('anchor',new THREE.Float32BufferAttribute(A,3));bGeo.setAttribute('gid',new THREE.Float32BufferAttribute(G,1));bGeo.setAttribute('mr',new THREE.Float32BufferAttribute(MR,1));
-const bU={uScale:{value:0},uGV:{value:Array.from({length:64},()=>new THREE.Vector4())},uSun:{value:sunDir}};
-const BV=`attribute vec3 anchor;attribute float gid;attribute float mr;uniform float uScale;uniform vec4 uGV[64];float gv(float g){int i=int(g+.5);vec4 v=uGV[i/4];int k=i-(i/4)*4;return k==0?v.x:k==1?v.y:k==2?v.z:v.w;}
+const bU={uScale:{value:0},uGV:{value:Array.from({length:96},()=>new THREE.Vector4())},uSun:{value:sunDir}};
+const BV=`attribute vec3 anchor;attribute float gid;attribute float mr;uniform float uScale;uniform vec4 uGV[96];float gv(float g){int i=int(g+.5);vec4 v=uGV[i/4];int k=i-(i/4)*4;return k==0?v.x:k==1?v.y:k==2?v.z:v.w;}
 vec3 frame(vec3 v,vec3 a){vec3 n=normalize(a);vec3 t=normalize(cross(vec3(0.,1.,0.),n));vec3 b=cross(n,t);return t*v.x+b*v.y+n*v.z;}`;
 const bMesh=new THREE.Mesh(bGeo,new THREE.ShaderMaterial({uniforms:bU,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
  vertexShader:BV+`attribute vec3 col;attribute float flag;varying vec3 vC,vN,vLP,vLN;varying float vF;
@@ -547,7 +579,7 @@ function layoutCards(act,W,H,cx,cy){
   bands=[];['L','R'].forEach(side=>{const fs=fails.filter(g=>side==='L'?g.dx<W/2:g.dx>=W/2);if(!fs.length)return;
    const cw=Math.max(...fs.map(g=>g.cw));const need=fs.reduce((s,g)=>s+g.ch+6,0);let x0=side==='L'?M:W-M-cw,used=0,k=0;
    while(used<need&&k<6){const l=x0,r=x0+cw;let top=M,bot=H-M;Z.forEach(z=>{if(z.l<r&&z.r>l){if((z.t+z.b)/2<H/2)top=Math.max(top,z.b);else bot=Math.min(bot,z.t);}});
-    bands.push({l,t:top,r,b:bot,side,cap:bot-top});used+=bot-top;k++;x0+=side==='L'?cw+10:-(cw+10);}});
+    if(l<M-1||r>W-M+1||bands.some(b=>l<b.r+6&&r>b.l-6&&top<b.b&&bot>b.t))break;bands.push({l,t:top,r,b:bot,side,cap:bot-top});used+=bot-top;k++;x0+=side==='L'?cw+10:-(cw+10);}});
   // keep assigning in next pass; on last pass place columns
  }
  if(fails.length){act.forEach(g=>{if(fails.includes(g)||!g.pl)return;const l=g.dx+g.pl.ox,t=g.dy+g.pl.oy,w=g.pl.cmp?g.cw:g.w,h=g.pl.cmp?g.ch:g.h;if(bands.some(b=>l<b.r+6&&l+w>b.l-6&&t<b.b+6&&t+h>b.t-6))fails.push(g);});bands.forEach(b=>b.y=b.t);const sorted=fails.slice().sort((a,b)=>a.dy-b.dy);
@@ -555,7 +587,7 @@ function layoutCards(act,W,H,cx,cy){
    let b=cand.find(b=>b.y+g.ch<=b.b&&b.r-b.l>=g.cw-1);if(!b)b=cand[0];if(!b)return;const l=b.side==='L'?b.l:b.r-g.cw;
    g.pl={ox:l-g.dx,oy:b.y-g.dy,cmp:true,col:true};b.y+=g.ch+6;});}
 }
-function updateCards(){ZONES=['title','flyBtns','dock','story','info','pop'].map(id=>document.getElementById(id)).filter(e=>e&&getComputedStyle(e).opacity>.05&&!(e.id==='info'&&!e.classList.contains('open'))&&!(e.id==='pop'&&!e.classList.contains('open'))).map(e=>e.getBoundingClientRect());
+function updateCards(){ZONES=['title','flyBtns','dock','story','info','pop','cityPanel'].map(id=>document.getElementById(id)).filter(e=>e&&getComputedStyle(e).opacity>.05&&!(e.id==='cityPanel'&&!drill)&&!(drill&&e.id==='story')&&!(drill&&innerWidth<760&&(e.id==='flyBtns'||e.id==='dock'||e.id==='title'))&&!(e.id==='info'&&!e.classList.contains('open'))&&!(e.id==='pop'&&!e.classList.contains('open'))).map(e=>e.getBoundingClientRect());
  const W=innerWidth,H=innerHeight;const cd=camera.position.length();
  tmp.set(0,0,0).project(camera);const cx=(tmp.x+1)/2*W,cy=(1-tmp.y)/2*H;
  const act=[];const shown=started&&introT>=1;const wide=cd>(W<760?2.0:3.1);
@@ -586,6 +618,40 @@ window.__settled=()=>!fly&&still>8&&introT>=1;window.__cardCheck=()=>{const vs=g
  let zo=0;rs.forEach(a=>ZONES.forEach(b=>{if(a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top)zo++;}));const off=rs.filter(a=>a.left<0||a.top<0||a.right>innerWidth||a.bottom>innerHeight).length;
   return {cards:vs.length,overlaps:ov,zoneOverlaps:zo,offscreen:off,hidden:vs.filter(g=>g.op<.5||g.el.style.display==='none').length,cols:vs.filter(g=>g.pl&&g.pl.col).length};};
 
+
+
+// ================= CITY DRILL-DOWN =================
+let distLabels=[];
+function enterCity(g,focus){const ms=g.ms;const prev={scope,cam:camera.position.clone(),tgt:controls.target.clone()};
+ drill={city:g.city,prev};document.body.classList.add('drill');applyFilter();
+ const short=g.city.split(' ').slice(1).join(' ')||g.city;const scopeName=(document.querySelector(`#flyBtns button[data-f="${scope}"]`)||{}).textContent||'';
+ document.getElementById('cityBc').innerHTML=`<a data-k="globe">全球</a>${scope!=='globe'?` › <a data-k="${scope}">${scopeName}</a>`:''} › <b>${short}</b>`;
+ document.querySelectorAll('#cityBc a').forEach(a=>a.onclick=()=>{leaveCity(false);flyTo(a.dataset.k);});
+ const vis=ms.filter(visibleBase);
+ document.getElementById('cityTitle').textContent=`${short} · ${vis.length} 家`;
+ const nApprox=vis.filter(o=>o.dapprox).length;document.getElementById('cityNote').textContent=nApprox?`≈ 标注为近似位置（${nApprox} 家）· 区级坐标仅供示意`:'区级坐标仅供示意';
+ const ul=document.getElementById('cityList');ul.innerHTML=vis.map(o=>`<li data-id="${o.id}"><i style="color:${INK[o.layer]};background:${INK[o.layer]}"></i><div class="t"><b>${o.cn}</b><small>${o.dapprox?'≈ ':''}${o.dist||''}</small></div><span class="sg" style="background:${INK[o.layer]}">${SEG[o.seg][0]}</span></li>`).join('');
+ ul.querySelectorAll('li').forEach(li=>li.onclick=()=>{const o=byId[li.dataset.id];ul.querySelectorAll('li').forEach(x=>x.classList.toggle('on',x===li));
+  groups.forEach(h=>h.el.classList.toggle('hl',!!h.comp&&h.ms[0]===o));select(o);});
+ // district labels
+ distLabels.forEach(p=>{p.el.remove();places.splice(places.indexOf(p),1);});distLabels=[];
+ const dm={};vis.forEach(o=>{const k=(o.dist||'').split(' · ')[0];if(!k)return;(dm[k]=dm[k]||[]).push(o);});
+ Object.entries(dm).forEach(([k,os])=>{let la=0,lo=0;os.forEach(o=>{la+=o.dlat;lo+=o.dlon;});la/=os.length;lo/=os.length;
+  const el=document.createElement('div');el.className='pl t2 dl';el.innerHTML=`<div class="z">${k}</div>`;el.style.display='block';el.style.visibility='hidden';plRoot.appendChild(el);
+  const p={zh:k,en:'',tier:2,rank:0,el,n:ll2v(la-.012,lo,1),pos:ll2v(la-.012,lo,R*1.003),w:el.offsetWidth,h:el.offsetHeight,op:0};el.style.visibility='';el.style.display='none';places.push(p);distLabels.push(p);});
+ // camera framing
+ let la0=90,la1=-90,lo0=180,lo1=-180;vis.forEach(o=>{la0=Math.min(la0,o.dlat);la1=Math.max(la1,o.dlat);lo0=Math.min(lo0,o.dlon);lo1=Math.max(lo1,o.dlon);});
+ const span=Math.max(la1-la0,(lo1-lo0)*Math.cos((la0+la1)/2*Math.PI/180),.03);const d=THREE.MathUtils.clamp(span*.06,.008,.05);
+ flyTo._keep=true;flyTo(null,[(la0+la1)/2-span*.08,(lo0+lo1)/2,d,40]);flyTo._keep=false;
+ if(focus)setTimeout(()=>{const li=ul.querySelector(`li[data-id="${focus.id}"]`);if(li)li.click();},2400);}
+function leaveCity(silent){if(!drill)return;const prev=drill.prev;drill=null;document.body.classList.remove('drill');
+ groups.forEach(h=>h.el.classList.remove('hl'));distLabels.forEach(p=>{p.el.remove();places.splice(places.indexOf(p),1);});distLabels=[];
+ document.getElementById('info').classList.remove('open');applyFilter();
+ if(!silent){flyTo._keep=true;const k=prev.scope;flyTo(k);flyTo._keep=false;}}
+document.getElementById('cityBack').onclick=()=>leaveCity(false);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&drill)leaveCity(false);});
+window.__enterCity=c=>{const g=groups.find(g=>!g.comp&&!g.rg&&g.city===c);if(g)enterCity(g);return !!g;};
+window.__drillCheck=()=>{const listed=document.querySelectorAll('#cityList li').length;const cs=groups.filter(g=>g.act&&g.op>.05);return {drill:drill&&drill.city,listed,cards:cs.length,allComp:cs.every(g=>g.comp&&g.cityKey===drill.city)};};
 
 // ================= PLACE LABELS =================
 const PL=[["津巴布韦","Zimbabwe",-18.91,29.93,0,3],["赞比亚","Zambia",-14.66,26.4,0,3],["也门","Yemen",15.33,45.87,0,3],["越南","Vietnam",21.72,105.39,0,2],["委内瑞拉","Venezuela",7.18,-64.6,0,3],["瓦努阿图","Vanuatu",-15.37,166.91,0,4],["乌兹别克斯坦","Uzbekistan",41.69,64.01,0,3],["乌拉圭","Uruguay",-32.96,-55.97,0,4],["美属萨摩亚","American Samoa",-14.33,-170.75,0,4],["美国","United States",39.54,-97.48,0,2],["南乔治亚和南桑威奇群岛","S. Geo. and the Is.",-55.68,-31.06,0,4],["皮特凯恩群岛","Pitcairn Is.",-24.36,-128.32,0,4],["英国","United Kingdom",54.4,-2.12,0,2],["阿拉伯联合酋长国","United Arab Emirates",23.47,54.55,0,4],["乌克兰","Ukraine",49.72,32.14,0,3],["乌干达","Uganda",1.97,32.95,0,3],["土库曼斯坦","Turkmenistan",39.86,58.68,0,4],["土耳其","Turkey",39.35,34.51,0,2],["突尼斯","Tunisia",33.69,9.01,0,3],["汤加","Tonga",-21.21,-175.16,0,4],["泰国","Thailand",15.46,101.07,0,3],["坦桑尼亚","Tanzania",-6.05,34.96,0,3],["塔吉克斯坦","Tajikistan",38.2,72.59,0,4],["叙利亚","Syria",35.01,38.28,0,3],["瑞士","Switzerland",46.72,7.46,0,4],["瑞典","Sweden",65.86,19.02,0,3],["斯威士兰","eSwatini",-26.53,31.47,0,4],["苏里南","Suriname",4.14,-55.91,0,4],["南苏丹","S. Sudan",7.23,30.39,0,3],["苏丹","Sudan",16.33,29.26,0,3],["斯里兰卡","Sri Lanka",7.58,80.7,0,3],["西班牙","Spain",40.09,-3.46,0,2],["大韩民国","South Korea",36.38,128.13,0,2],["南非","South Africa",-29.71,23.67,0,2],["所罗门群岛","Solomon Is.",-8.03,159.17,0,3],["塞拉利昂","Sierra Leone",8.62,-11.76,0,4],["塞内加尔","Senegal",15.14,-14.78,0,3],["沙特阿拉伯","Saudi Arabia",23.81,44.7,0,2],["萨摩亚","Samoa",-13.64,-172.44,0,4],["卢旺达","Rwanda",-1.9,30.1,0,3],["俄罗斯","Russia",58.25,44.69,0,2],["罗马尼亚","Romania",45.73,24.97,0,3],["葡萄牙","Portugal",39.61,-8.27,0,2],["波兰","Poland",51.99,19.49,0,3],["菲律宾","Philippines",11.2,122.47,0,2],["秘鲁","Peru",-12.98,-72.9,0,2],["巴拉圭","Paraguay",-21.67,-60.15,0,4],["巴布亚新几内亚","Papua New Guinea",-5.7,143.91,0,2],["巴拿马","Panama",8.72,-80.35,0,4],["巴基斯坦","Pakistan",29.33,68.55,0,2],["阿曼","Oman",22.12,57.34,0,4],["挪威","Norway",61.36,9.68,0,3],["朝鲜民主主义人民共和国","North Korea",39.89,126.44,0,3],["尼日利亚","Nigeria",9.44,7.5,0,2],["尼日尔","Niger",17.45,9.5,0,3],["新西兰","New Zealand",-39.76,172.79,0,2],["纽埃","Niue",-19.05,-169.86,0,4],["库克群岛","Cook Is.",-21.22,-159.79,0,4],["尼泊尔","Nepal",28.3,83.64,0,3],["纳米比亚","Namibia",-20.58,17.11,0,3],["莫桑比克","Mozambique",-13.94,37.84,0,3],["摩洛哥","Morocco",31.65,-7.19,0,3],["蒙古国","Mongolia",46.0,104.15,0,3],["墨西哥","Mexico",23.92,-102.29,0,2],["毛里塔尼亚","Mauritania",19.59,-9.74,0,3],["马里","Mali",18.69,-2.04,0,3],["马来西亚","Malaysia",2.53,113.84,0,3],["马达加斯加","Madagascar",-18.63,46.7,0,3],["利比亚","Libya",26.64,18.01,0,3],["利比里亚","Liberia",6.45,-9.46,0,4],["老挝","Laos",19.43,102.53,0,4],["吉尔吉斯斯坦","Kyrgyzstan",41.67,74.53,0,4],["肯尼亚","Kenya",0.55,37.91,0,2],["哈萨克斯坦","Kazakhstan",49.05,68.69,0,3],["约旦","Jordan",30.81,36.38,0,4],["日本","Japan",36.14,138.44,0,2],["牙买加","Jamaica",18.14,-77.32,0,4],["意大利","Italy",44.73,11.08,0,2],["以色列","Israel",30.91,34.85,0,4],["爱尔兰","Ireland",53.08,-7.8,0,3],["伊拉克","Iraq",33.09,43.26,0,3],["伊朗","Iran",32.17,54.93,0,2],["印度尼西亚","Indonesia",-0.95,101.89,0,2],["印度","India",22.69,79.36,0,2],["冰岛","Iceland",64.78,-18.67,0,3],["圭亚那","Guyana",5.12,-58.94,0,4],["几内亚","Guinea",10.62,-10.02,0,3],["危地马拉","Guatemala",14.98,-90.5,0,3],["希腊","Greece",39.49,21.73,0,3],["加纳","Ghana",7.72,-1.04,0,3],["德国","Germany",50.96,9.68,0,2],["加蓬","Gabon",-0.44,11.84,0,4],["法国","France",46.7,2.55,0,2],["圣皮埃尔和密克隆","St. Pierre and Miquelon",47.04,-56.33,0,4],["瓦利斯和富图纳","Wallis and Futuna Is.",-14.29,-178.14,0,4],["法属波利尼西亚","Fr. Polynesia",-17.63,-149.46,0,4],["新喀里多尼亚","New Caledonia",-21.06,165.08,0,3],["芬兰","Finland",63.25,27.28,0,3],["埃塞俄比亚","Ethiopia",8.03,39.09,0,2],["厄立特里亚","Eritrea",15.79,38.29,0,4],["赤道几内亚","Eq. Guinea",2.33,8.99,0,4],["埃及","Egypt",26.19,29.45,0,2],["厄瓜多尔","Ecuador",-1.26,-78.19,0,3],["格陵兰","Greenland",74.32,-39.34,0,3],["丹麦","Denmark",55.97,9.02,0,4],["古巴","Cuba",21.33,-77.98,0,3],["科特迪瓦","Côte d'Ivoire",7.49,-5.57,0,3],["刚果民主共和国","Dem. Rep. Congo",-1.86,23.46,0,2],["刚果共和国","Congo",0.14,15.9,0,4],["哥伦比亚","Colombia",3.37,-73.17,0,2],["中国","China",32.5,106.34,0,2],["澳门","Macao",22.13,113.56,0,4],["香港","Hong Kong",22.45,114.1,0,4],["智利","Chile",-38.15,-72.32,0,2],["乍得","Chad",15.14,18.65,0,3],["中非共和国","Central African Rep.",6.99,20.91,0,4],["佛得角","Cabo Verde",15.07,-23.64,0,4],["加拿大","Canada",60.32,-101.91,0,2],["喀麦隆","Cameroon",4.59,12.47,0,3],["柬埔寨","Cambodia",12.65,104.5,0,3],["缅甸","Myanmar",21.57,95.8,0,3],["布基纳法索","Burkina Faso",12.67,-1.36,0,3],["保加利亚","Bulgaria",42.51,25.16,0,4],["巴西","Brazil",-12.1,-49.56,0,2],["博茨瓦纳","Botswana",-22.1,24.18,0,4],["玻利维亚","Bolivia",-16.67,-64.59,0,3],["比利时","Belgium",50.79,4.8,0,2],["白俄罗斯","Belarus",53.82,28.42,0,4],["孟加拉国","Bangladesh",24.21,89.68,0,3],["巴林","Bahrain",26.06,50.55,0,4],["巴哈马","Bahamas",26.4,-77.15,0,4],["奥地利","Austria",47.52,14.13,0,4],["澳大利亚","Australia",-24.13,134.05,0,2],["阿根廷","Argentina",-33.5,-64.17,0,2],["安哥拉","Angola",-12.18,17.98,0,3],["阿尔及利亚","Algeria",27.4,2.81,0,3],["阿富汗","Afghanistan",34.16,66.5,0,3],["南极洲","Antarctica",-79.84,35.89,0,4],["新疆","Xinjiang",41.12,85.43,1,5],["西藏","Xizang",31.45,88.41,1,5],["内蒙古","Inner Mongolia",41.59,111.62,1,5],["甘肃","Gansu",38.74,100.73,1,5],["云南","Yunnan",24.46,101.66,1,5],["黑龙江","Heilongjiang",46.85,127.97,1,5],["吉林","Jilin",43.3,126.47,1,5],["辽宁","Liaoning",41.39,123.07,1,5],["广西","Guangxi",23.75,108.76,1,5],["华盛顿州","Washington",47.49,-120.36,1,5],["爱达荷州","Idaho",43.78,-114.13,1,5],["蒙大拿州","Montana",47.0,-110.04,1,5],["北达科他州","North Dakota",47.47,-100.3,1,5],["明尼苏达州","Minnesota",46.06,-93.36,1,5],["密歇根州","Michigan",43.43,-84.95,1,5],["俄亥俄州","Ohio",40.09,-82.67,1,5],["宾夕法尼亚州","Pennsylvania",40.86,-77.61,1,5],["纽约州","New York",43.2,-75.32,1,5],["佛蒙特州","Vermont",44.09,-72.73,1,5],["新罕布什尔州","New Hampshire",43.6,-71.63,1,5],["缅因州","Maine",45.15,-69.2,1,5],["亚利桑那州","Arizona",34.3,-111.94,1,5],["加利福尼亚州","California",36.75,-119.59,1,5],["新墨西哥州","New Mexico",34.5,-106.02,1,5],["得克萨斯州","Texas",31.13,-98.76,1,5],["阿拉斯加州","Alaska",65.36,-151.6,1,5],["广东","Guangdong",23.79,113.72,1,5],["海南","Hainan",19.19,109.83,1,5],["福建","Fujian",26.41,118.18,1,5],["路易斯安那州","Louisiana",30.53,-92.0,1,5],["密西西比州","Mississippi",32.87,-89.72,1,5],["亚拉巴马州","Alabama",32.86,-86.72,1,5],["佛罗里达州","Florida",28.16,-81.62,1,5],["佐治亚州","Georgia",32.85,-83.41,1,5],["南卡罗来纳州","South Carolina",33.86,-80.65,1,5],["北卡罗来纳州","North Carolina",35.62,-78.87,1,5],["弗吉尼亚州","Virginia",37.74,-78.24,1,5],["华盛顿哥伦比亚特区","District of Columbia",38.89,-77.01,1,5],["马里兰州","Maryland",39.39,-77.05,1,5],["特拉华州","Delaware",38.87,-75.41,1,5],["新泽西州","New Jersey",40.04,-74.47,1,5],["康涅狄格州","Connecticut",41.65,-72.76,1,5],["罗得岛州","Rhode Island",41.62,-71.51,1,5],["马萨诸塞州","Massachusetts",42.37,-72.0,1,5],["浙江","Zhejiang",29.11,119.97,1,5],["上海","Shanghai",31.09,121.41,1,5],["江苏","Jiangsu",32.98,119.94,1,5],["俄勒冈州","Oregon",43.83,-120.39,1,5],["山东","Shandong",36.33,118.11,1,5],["河北","Hebei",38.52,115.31,1,5],["天津","Tianjin",39.37,117.35,1,5],["夏威夷州","Hawaii",21.49,-158.0,1,5],["西沙群岛","Paracel Islands",15.78,111.2,1,5],["犹他州","Utah",39.5,-111.54,1,5],["怀俄明州","Wyoming",43.0,-107.55,1,5],["内华达州","Nevada",39.43,-117.02,1,5],["科罗拉多州","Colorado",39.0,-105.54,1,5],["南达科他州","South Dakota",44.47,-100.25,1,5],["內布拉斯加州","Nebraska",41.5,-99.69,1,5],["堪萨斯州","Kansas",38.5,-98.33,1,5],["俄克拉荷马州","Oklahoma",35.45,-97.13,1,5],["艾奥瓦州","Iowa",42.04,-93.39,1,5],["密苏里州","Missouri",38.55,-92.45,1,5],["北京","Beijing",39.95,116.39,1,5],["四川","Sichuan",30.54,102.38,1,5],["重庆","Chongqing",30.02,107.73,1,5],["贵州","Guizhou",26.8,106.56,1,5],["湖南","Hunan",27.67,111.71,1,5],["宁夏","Ningxia",37.18,106.04,1,5],["陕西","Shaanxi",33.77,108.36,1,5],["青海","Qinghai",35.27,96.24,1,5],["山西","Shanxi",37.76,112.39,1,5],["江西","Jiangxi",27.64,116.02,1,5],["河南","Henan",33.91,113.48,1,5],["湖北","Hubei",30.99,112.26,1,5],["安徽","Anhui",31.95,117.25,1,5],["威斯康星州","Wisconsin",44.37,-89.58,1,5],["伊利诺伊州","Illinois",39.95,-89.2,1,5],["肯塔基州","Kentucky",37.4,-85.57,1,5],["阿肯色州","Arkansas",34.76,-92.14,1,5],["田纳西州","Tennessee",35.75,-86.34,1,5],["西維吉尼亞州","West Virginia",38.64,-80.71,1,5],["印第安纳州","Indiana",39.89,-86.14,1,5],["台湾","Taiwan",23.7,121.0,1,5],["旧金山","San Francisco",37.77,-122.42,2,6],["圣何塞","San Jose",37.34,-121.89,2,6],["奥克兰","Oakland",37.8,-122.27,2,6],["帕洛阿尔托","Palo Alto",37.44,-122.14,2,6],["弗里蒙特","Fremont",37.55,-121.99,2,6],["洛杉矶","Los Angeles",34.05,-118.24,2,6],["圣迭戈","San Diego",32.72,-117.16,2,6],["西雅图","Seattle",47.61,-122.33,2,6],["波特兰","Portland",45.52,-122.68,2,6],["凤凰城","Phoenix",33.45,-112.07,2,6],["丹佛","Denver",39.74,-104.99,2,6],["盐湖城","Salt Lake City",40.76,-111.89,2,6],["达拉斯","Dallas",32.78,-96.8,2,6],["休斯敦","Houston",29.76,-95.37,2,6],["奥斯汀","Austin",30.27,-97.74,2,6],["芝加哥","Chicago",41.88,-87.63,2,6],["底特律","Detroit",42.33,-83.05,2,6],["纽约","New York",40.71,-74.01,2,6],["波士顿","Boston",42.36,-71.06,2,6],["华盛顿","Washington",38.91,-77.04,2,6],["费城","Philadelphia",39.95,-75.17,2,6],["匹兹堡","Pittsburgh",40.44,-80.0,2,6],["亚特兰大","Atlanta",33.75,-84.39,2,6],["迈阿密","Miami",25.76,-80.19,2,6],["哥伦布","Columbus",39.96,-83.0,2,6],["明尼阿波利斯","Minneapolis",44.98,-93.27,2,6],["博伊西","Boise",43.62,-116.2,2,6],["阿尔伯克基","Albuquerque",35.08,-106.65,2,6],["北京","Beijing",39.9,116.4,2,6],["上海","Shanghai",31.23,121.47,2,6],["深圳","Shenzhen",22.54,114.06,2,6],["广州","Guangzhou",23.13,113.26,2,6],["杭州","Hangzhou",30.27,120.15,2,6],["合肥","Hefei",31.82,117.23,2,6],["武汉","Wuhan",30.59,114.31,2,6],["天津","Tianjin",39.13,117.2,2,6],["济南","Jinan",36.65,117.0,2,6],["成都","Chengdu",30.57,104.07,2,6],["重庆","Chongqing",29.56,106.55,2,6],["西安","Xi'an",34.34,108.94,2,6],["南京","Nanjing",32.06,118.8,2,6],["贵阳","Guiyang",26.65,106.63,2,6],["中卫","Zhongwei",37.51,105.19,2,6],["乌兰察布","Ulanqab",41.0,113.13,2,6],["香港","Hong Kong",22.32,114.17,2,6],["苏州","Suzhou",31.3,120.62,2,6]];
@@ -623,7 +689,7 @@ function tick(){const dt=Math.min(clock.getDelta(),.05);const t=clock.elapsedTim
  markers.forEach((o,i)=>{const delay=started?THREE.MathUtils.clamp(introT*3-1.6-i*.004,0,1):0;
   o.vis+=(o.target*delay-o.vis)*Math.min(1,dt*6);const hi=(o===hovered||o===selected)?1:0;
   o.pillar.material.uniforms.uHi.value+=(hi-o.pillar.material.uniforms.uHi.value)*.2;o.ring.material.uniforms.uHi.value=o.pillar.material.uniforms.uHi.value;
-  const s=Math.max(o.vis,.0001);o.group.scale.set(s*sc,s*sc,s*(.6+.4*sc));o.group.visible=o.vis>.01;o.pillar.visible=false;o.ring.visible=o.head.visible=bFade<.35;
+  const s=Math.max(o.vis,.0001);o.group.scale.set(s*sc,s*sc,s*(.6+.4*sc));o.group.visible=o.vis>.01;o.pillar.visible=false;o.ring.visible=o.head.visible=bFade<.35;if(drill)o.group.visible=false;
   o.head.scale.setScalar(.0042*(1+hi*.8));});
  arcs.forEach(a=>{const ia=visible(a.A),ib=visible(a.B),ba=visibleBase(a.A),bb=visibleBase(a.B);const tg=showArcs&&introT>=1&&(ia||ib)&&ba&&bb?(ia&&ib?1:.3):0;a.op+=(tg-a.op)*Math.min(1,dt*3);a.m.uniforms.uOp.value=a.op*(.25+.75*THREE.MathUtils.smoothstep(camera.position.length(),1.3,2.6))*THREE.MathUtils.smoothstep(camera.position.length(),1.08,1.3)*(camera.position.length()>3?.5:.75);a.mesh.visible=a.op>.01;});
  controls.update();{const nr=THREE.MathUtils.clamp((camera.position.length()-1)*.25,.0004,.05);if(Math.abs(nr-camera.near)>1e-5){camera.near=nr;camera.updateProjectionMatrix();}}
