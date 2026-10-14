@@ -634,9 +634,9 @@ window.__settled=()=>!fly&&still>8&&introT>=1;window.__cardCheck=()=>{const vs=g
 
 
 // ================= DANMAKU =================
-let dmOn=true;const DM=AD.DANMAKU||[];const dmRoot=document.getElementById('dmk');let dmLast=-1;
+let dmOn=true;const DM=AD.DANMAKU||[];const dmRoot=document.getElementById('dmk');let dmLast=-1,dmIdx=0;
 function dmSpawn(){if(!dmOn||!DM.length||document.hidden)return;const mob=innerWidth<760;const lanes=mob?3:4;let lane;do{lane=Math.floor(Math.random()*lanes);}while(lane===dmLast&&lanes>1);dmLast=lane;
- const el=document.createElement('div');el.className='dm';el.textContent=DM[Math.floor(Math.random()*DM.length)];dmRoot.appendChild(el);
+ const el=document.createElement('div');el.className='dm';el.textContent=DM[dmIdx++%DM.length];dmRoot.appendChild(el);
  const top=mob?(.30+lane*.07):(.30+lane*.08);el.style.top=(innerHeight*top)+'px';const w=el.offsetWidth,W=innerWidth;
  const dur=(W+w)/(mob?90:130);el.style.transform=`translateX(${W}px)`;
  el.animate([{transform:`translateX(${W}px)`},{transform:`translateX(${-w-20}px)`}],{duration:dur*1000,easing:'linear'}).onfinish=()=>el.remove();}
