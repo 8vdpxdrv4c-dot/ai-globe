@@ -20,9 +20,10 @@ A printed infographic poster brought to life, in the spirit of FT/Bloomberg visu
 | shadow | `0 1px 2px rgba(20,35,58,.06), 0 8px 24px rgba(20,35,58,.08)` | one elevation level only |
 
 ## 3. Type
-- Display: **Noto Serif SC** 700 (fallback: Songti SC, serif). Title 34/40, letter-spacing .02em.
+- Display: **Noto Serif SC** 700 (fallback: Songti SC, serif). Title 40/46, letter-spacing .02em.
 - UI and body: **Noto Sans SC** 400/500/700 (fallback: PingFang SC, system-ui).
-- Scale: 34 title · 15 card title · 13 body · 12 UI · 11 caption · 10 micro EN (uppercase, tracking .08em).
+- Scale: 40 title · 17.5 card city · 15 company/body · 14 UI · 12 EN sub · 11.5 micro caps. Mobile ≈ 85%.
+- Fonts are self-hosted subset WOFF2 in `/fonts` (~690 KB, regenerate when data changes).
 - Numbers use tabular-nums.
 
 ## 4. Grid and spacing
@@ -50,3 +51,6 @@ A printed infographic poster brought to life, in the spirit of FT/Bloomberg visu
 1. Title. 2. Globe and data (cards, buildings). 3. Region tabs. 4. Legend/filter. 5. Narrative.
 
 Chrome uses at most about 18% of the viewport on desktop. Arcs are hairlines at 35% opacity, so they never compete with cards.
+
+## 8. Label placement
+Cards are never hidden for overlap. Only far-side or off-screen anchors hide. Placement runs when the camera settles, using a greedy search over 8 directions × 6 radii (full card, then compact). If no spot is free, cards go into side columns (left/right, sorted by anchor y, multiple columns if needed). Previous spots are reused when still valid (hysteresis), and cards animate to new targets. Place-names yield to cards.
