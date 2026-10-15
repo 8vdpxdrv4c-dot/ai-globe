@@ -387,7 +387,7 @@ const arcBtn=document.getElementById('arcBtn');arcBtn.onclick=()=>{showArcs=!sho
 const composer=new EffectComposer(renderer);composer.addPass(new RenderPass(scene,camera));const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.6,.45,.62);composer.addPass(bloom);composer.addPass(new OutputPass());
 const PRESETS={globe:[28,85,3.6],us:[38.5,-97,2.7],bay:[37.5,-122.12,.03,46],ne:[41.4,-74.2,.5,42],cn:[29.5,113.5,.95,38],yrd:[30.6,120.3,.16,45],prd:[22.6,113.9,.09,45],tw:[23.6,120.8,.13,40],sea:[8,104,.75,30],jk:[34.5,133,.42,38],eu:[49,7,.55,38],me:[27,47,.9,30]};
 let fly=null;
-function flyTo(k,latlon){if(k&&!latlon&&drill&&!flyTo._keep)leaveCity(true);if(k&&!latlon&&PRESETS[k]&&k!==scope)setScope(k);if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));let [lat,lon,d,tilt=0]=latlon||PRESETS[k];if(innerWidth<innerHeight)d=tilt?d*1.5:1+(d-1)*1.9;const from=camera.position.clone();let to,tgt;
+function flyTo(k,latlon){if(k&&!latlon&&drill&&!flyTo._keep)leaveCity(true);if(k&&!latlon&&PRESETS[k]&&k!==scope)setScope(k);if(!latlon)document.querySelectorAll('#flyBtns button').forEach(x=>x.classList.toggle('on',x.dataset.f===k));let [lat,lon,d,tilt=0]=latlon||PRESETS[k];if(innerWidth<innerHeight){const k=innerWidth<760?(tilt?1.5:1.9):1+(innerHeight/innerWidth-1)*.75;d=tilt?d*k:1+(d-1)*k;}const from=camera.position.clone();let to,tgt;
  if(tilt){tgt=ll2v(lat,lon,R);const n=tgt.clone().normalize();const east=new THREE.Vector3(0,1,0).cross(n).normalize();const north=n.clone().cross(east);
   const tr=tilt*Math.PI/180;to=tgt.clone().addScaledVector(n,Math.cos(tr)*d).addScaledVector(north,-Math.sin(tr)*d);}
  else{to=ll2v(lat,lon,d);tgt=new THREE.Vector3();}
@@ -597,7 +597,7 @@ function layoutCards(act,W,H,cx,cy){
 function updateCards(){ZONES=['title','flyBtns','dock','story','info','pop','cityPanel'].map(id=>document.getElementById(id)).filter(e=>e&&getComputedStyle(e).opacity>.05&&!(e.id==='cityPanel'&&!drill)&&!(drill&&e.id==='story')&&!(drill&&innerWidth<760&&(e.id==='flyBtns'||e.id==='dock'||e.id==='title'))&&!(e.id==='info'&&!e.classList.contains('open'))&&!(e.id==='pop'&&!e.classList.contains('open'))).map(e=>e.getBoundingClientRect());
  const W=innerWidth,H=innerHeight;const cd=camera.position.length();
  tmp.set(0,0,0).project(camera);const cx=(tmp.x+1)/2*W,cy=(1-tmp.y)/2*H;
- const act=[];const shown=started&&introT>=1;const wide=cd>(W<760?2.0:3.1);
+ const act=[];const shown=started&&introT>=1;const wide=cd>(W<760?2.0:W<H?1+2.1*(1+(H/W-1)*.75):3.1);
  groups.forEach(g=>{const f=g.n.dot(camera.position)/R;const face=(f-1)/(cd-1);g.face=face;
   if(!shown||!g.vis.length||face<.06||(!!g.rg)!==wide){g.act=false;return;}
   tmp.copy(g.pos).project(camera);g.dx=(tmp.x+1)/2*W;g.dy=(1-tmp.y)/2*H;if(g.dx<0||g.dx>W||g.dy<0||g.dy>H){g.act=false;return;}
