@@ -65,7 +65,7 @@ A printed infographic poster brought to life, in the spirit of FT/Bloomberg visu
 
 ## 5. Components
 - **Title block**: kicker (EN micro caps) → serif H1 → one-line subtitle → hairline → three key numbers (sites / segments / regions).
-- **Region tabs**: one segmented control (全球 美国 湾区 中国 长三角 珠三角 中国台湾 东南亚 日韩 欧洲). The active tab is ink-filled. It scrolls horizontally on mobile.
+- **Region tabs**: one segmented control (全球 美国 湾区 中国 长三角 珠三角 东南亚 日韩 欧洲). The active tab is ink-filled. It scrolls horizontally on mobile.
 - **Layer legend** (always visible): three toggle pills with a coloured dot and live count. It is both the legend and the main filter.
 - **Filter dock**: a single "筛选" button opens a popover with the 23 segment chips grouped by layer, region chips, and switches for arcs and auto-rotate. The active-filter count shows as a badge. On mobile the popover becomes a bottom sheet.
 - **Narrative stepper**: one card at a time. Step number, serif heading, 3-line body, prev/next buttons and dots. Each step flies the camera.

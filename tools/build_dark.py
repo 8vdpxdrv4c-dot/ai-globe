@@ -3,8 +3,8 @@ from PIL import Image,ImageDraw,ImageFilter
 Image.MAX_IMAGE_PIXELS=None
 L=lambda f:json.load(open(f))['features']
 land10=L('ne_10m_land.geojson');lakes10=[f for f in L('ne_10m_lakes.geojson') if (f['properties'].get('scalerank') or 0)<=8]
-coast10=L('ne_10m_coastline.geojson');cb=L('ne_50m_admin_0_boundary_lines_land.geojson')
-adm1=[f for f in L('ne_10m_admin_1_states_provinces.geojson') if f['properties']['adm0_a3'] in('USA','CHN')]
+coast10=L('ne_10m_coastline.geojson');cb=L('chn_borders.geojson');dash=L('chn_dashline.geojson')  # PRC-standard, see make_borders_chn.py
+adm1=L('chn_adm1_internal.geojson')
 GR=Image.open('GRAY_HR_SR_OB.tif')
 def rings(g):
     t=g['type'];c=g['coordinates']
@@ -57,6 +57,7 @@ def render(lon0,lon1,lat0,lat1,W,H,out,lw=1.0,q=85):
     col=glow(col,co,[0.1,0.55,0.9],max(2,3*lw),0.9)
     col=ink(col,co,[0.45,0.9,1.0],0.9)
     col=ink(col,bo,[0.35,0.78,0.98],0.7)
+    col=ink(col,lines(dash,w(2.6)),[0.35,0.78,0.98],0.85)
     Image.fromarray((np.clip(col,0,1)*255).astype('uint8')).save(out,quality=q,optimize=True,progressive=True);print(out)
 T='/workspace/ai-globe/textures/'
 import sys

@@ -55,7 +55,7 @@ A('CN',[
 ['anji','安集科技','Anji Micro','上海',31.20,121.61,'mat','CMP 抛光液与功能湿化学品。'],
 ['jcet-mat','江丰电子','KFMI','浙江 宁波 余姚',30.04,121.15,'mat','超高纯溅射靶材。'],
 # 代工
-['smic','中芯国际 上海','SMIC Shanghai','上海',31.205,121.60,'foundry','中国大陆最大晶圆代工厂，先进制程主力。'],
+['smic','中芯国际 上海','SMIC Shanghai','上海',31.205,121.60,'foundry','国内最大晶圆代工厂，先进制程主力。'],
 ['smic-bj','中芯国际 北京','SMIC Beijing','北京 亦庄',39.80,116.52,'foundry','12 英寸晶圆厂（中芯北方/京城）。'],
 ['smic-sz','中芯国际 深圳','SMIC Shenzhen','广东 深圳',22.63,114.08,'foundry','12 英寸晶圆项目。'],
 ['smic-tj','中芯国际 天津','SMIC Tianjin','天津',39.12,117.32,'foundry','12 英寸晶圆厂。'],
@@ -141,27 +141,27 @@ A('CN',[
 ['hik','海康威视','Hikvision','浙江 杭州',30.21,120.21,'ind','视觉感知与工业 AI。'],
 ['luxshare','立讯精密','Luxshare','广东 东莞',22.97,113.73,'net','高速铜连接/电源/光模块，GB200 铜缆供应商。'],
 ])
-A('TW',[
-['tsmc-hc','台积电 新竹','TSMC Hsinchu','中国台湾 新竹',24.78,120.998,'foundry','台积电总部与研发、先进制程。'],
-['tsmc-tc','台积电 台中','TSMC Taichung','中国台湾 台中',24.21,120.62,'foundry','Fab 15 及先进封装厂。'],
-['tsmc-tn','台积电 台南','TSMC Tainan','中国台湾 台南',23.11,120.27,'foundry','南科 Fab 18（3nm/5nm）。'],
-['tsmc-ks','台积电 高雄','TSMC Kaohsiung','中国台湾 高雄',22.73,120.32,'foundry','Fab 22（2nm）。'],
-['tsmc-cowos','台积电 CoWoS 竹南/嘉义','TSMC AP6/AP7','中国台湾 竹南',24.68,120.87,'pkg','CoWoS 先进封装主力产能（另有嘉义 AP7）。'],
-['ase','日月光 ASE','ASE','中国台湾 高雄',22.72,120.30,'pkg','全球最大封测厂（楠梓）。'],
-['spil','矽品 SPIL','SPIL','中国台湾 台中',24.25,120.60,'pkg','日月光旗下封测。'],
-['hh','鸿海 / 富士康','Foxconn','中国台湾 新北 土城',24.97,121.44,'server','全球最大电子代工，AI 服务器机柜龙头。'],
-['quanta','广达','Quanta','中国台湾 桃园 龟山',25.05,121.36,'server','云服务器 ODM，GB200 主要组装商。'],
-['wistron','纬创','Wistron','中国台湾 新北 汐止',25.07,121.66,'server','GPU 基板与服务器 ODM。'],
-['wiwynn','纬颖','Wiwynn','中国台湾 新北',25.06,121.65,'server','超大规模云服务器 ODM。'],
-['inventec','英业达','Inventec','中国台湾 台北',25.08,121.57,'server','服务器 ODM。'],
-['delta','台达电','Delta Electronics','中国台湾 台北',25.07,121.57,'power','服务器电源与液冷，数据中心电力龙头。'],
-['mtk','联发科','MediaTek','中国台湾 新竹',24.785,121.01,'design','芯片设计，参与定制 AI ASIC。'],
-['unimicron','欣兴电子','Unimicron','中国台湾 桃园',24.99,121.30,'pcb','ABF 载板龙头。'],
-['nya','南亚电路板','Nan Ya PCB','中国台湾 桃园 芦竹',25.05,121.29,'pcb','ABF 载板。'],
-['accton','智邦','Accton','中国台湾 新竹',24.78,121.02,'net','白牌数据中心交换机（AI 以太网）。'],
-['umc','联电','UMC','中国台湾 新竹',24.77,121.00,'foundry','成熟制程代工。'],
-['gudeng','台光电子','EMC','中国台湾 桃园',24.95,121.20,'pcb','高速覆铜板（AI 服务器基材）。'],
-['avc','奇鋐','AVC','中国台湾 新北',25.02,121.45,'power','服务器液冷/散热模组。'],
+A('CN',[
+['tsmc-hc','台积电 新竹','TSMC Hsinchu','新竹',24.78,120.998,'foundry','台积电总部与研发、先进制程。'],
+['tsmc-tc','台积电 台中','TSMC Taichung','台中',24.21,120.62,'foundry','Fab 15 及先进封装厂。'],
+['tsmc-tn','台积电 台南','TSMC Tainan','台南',23.11,120.27,'foundry','南科 Fab 18（3nm/5nm）。'],
+['tsmc-ks','台积电 高雄','TSMC Kaohsiung','高雄',22.73,120.32,'foundry','Fab 22（2nm）。'],
+['tsmc-cowos','台积电 CoWoS 竹南/嘉义','TSMC AP6/AP7','竹南',24.68,120.87,'pkg','CoWoS 先进封装主力产能（另有嘉义 AP7）。'],
+['ase','日月光 ASE','ASE','高雄',22.72,120.30,'pkg','全球最大封测厂（楠梓）。'],
+['spil','矽品 SPIL','SPIL','台中',24.25,120.60,'pkg','日月光旗下封测。'],
+['hh','鸿海 / 富士康','Foxconn','新北 土城',24.97,121.44,'server','全球最大电子代工，AI 服务器机柜龙头。'],
+['quanta','广达','Quanta','桃园 龟山',25.05,121.36,'server','云服务器 ODM，GB200 主要组装商。'],
+['wistron','纬创','Wistron','新北 汐止',25.07,121.66,'server','GPU 基板与服务器 ODM。'],
+['wiwynn','纬颖','Wiwynn','新北',25.06,121.65,'server','超大规模云服务器 ODM。'],
+['inventec','英业达','Inventec','台北',25.08,121.57,'server','服务器 ODM。'],
+['delta','台达电','Delta Electronics','台北',25.07,121.57,'power','服务器电源与液冷，数据中心电力龙头。'],
+['mtk','联发科','MediaTek','新竹',24.785,121.01,'design','芯片设计，参与定制 AI ASIC。'],
+['unimicron','欣兴电子','Unimicron','桃园',24.99,121.30,'pcb','ABF 载板龙头。'],
+['nya','南亚电路板','Nan Ya PCB','桃园 芦竹',25.05,121.29,'pcb','ABF 载板。'],
+['accton','智邦','Accton','新竹',24.78,121.02,'net','白牌数据中心交换机（AI 以太网）。'],
+['umc','联电','UMC','新竹',24.77,121.00,'foundry','成熟制程代工。'],
+['gudeng','台光电子','EMC','桃园',24.95,121.20,'pcb','高速覆铜板（AI 服务器基材）。'],
+['avc','奇鋐','AVC','新北',25.02,121.45,'power','服务器液冷/散热模组。'],
 ])
 A('SEA',[
 ['intc-pg','英特尔 槟城/居林','Intel Penang','马来西亚 槟城',5.30,100.27,'pkg','英特尔封测与先进封装基地。'],
@@ -250,7 +250,7 @@ SEG={
 'dc':['数据中心/算力园区','mid','IDC'],'cloud':['云/GPU云','mid','云'],'model':['基础模型','mid','模型'],'data':['数据平台','mid','数据'],
 'ent':['企业软件','down','软件'],'auto':['自动驾驶/智能车','down','智驾'],'robot':['机器人/具身','down','机器人'],'device':['消费电子/终端','down','终端'],
 'med':['医疗','down','医疗'],'ind':['工业','down','工业'],'def':['国防','down','国防']}
-REG={'US':'美国','CN':'中国大陆','TW':'中国台湾','SEA':'东南亚/南亚','JK':'日韩','EU':'欧洲','ME':'中东/以色列'}
+REG={'US':'美国','CN':'中国','SEA':'东南亚/南亚','JK':'日韩','EU':'欧洲','ME':'中东/以色列'}
 ids=[s[0] for s in S];assert len(ids)==len(set(ids)),[i for i in ids if ids.count(i)>1]
 ARCS=[['asml','tsmc-hc'],['asml','tsmc-tn'],['asml','ss-pt'],['asml','skh-ic'],['zeiss','asml'],['tel','tsmc-tn'],['amat','tsmc-tn'],['lrcx','tsmc-ks'],['shinetsu','tsmc-hc'],['sumco','tsmc-tn'],
 ['tsmc-tn','nvda'],['tsmc-cowos','nvda'],['tsmc-tn','amd'],['tsmc-tn','aapl'],['tsmc-hc','avgo'],['tsmc-az','nvda'],['skh-ic','nvda'],['skh-cj','nvda'],['ss-pt','amd'],['mu','nvda'],
